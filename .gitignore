@@ -1,1 +1,12 @@
+# Python tools for Visual Studio (PTVS)
 __pycache__/
+*.pyc
+
+# others
+*.png
+
+# xml files
+*.xml
+
+#particles library files
+*.h5
