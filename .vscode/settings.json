@@ -1,0 +1,7 @@
+{
+  "python.analysis.extraPaths": [
+    "./",
+    "./fuel_assembly",
+  ],
+  "python.languageServer": "Pylance"
+}
