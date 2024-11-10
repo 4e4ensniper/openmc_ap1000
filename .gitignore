@@ -10,3 +10,8 @@ __pycache__/
 
 #particles library files
 *.h5
+
+#out files
+*.txt
+*.out
+*.log
