@@ -15,3 +15,5 @@ __pycache__/
 *.txt
 *.out
 *.log
+*.csv
+!materials/temperature_distributions/*.csv

@@ -37,7 +37,8 @@ if __name__ == '__main__':
     zup_ = openmc.ZPlane(surface_id=int(2E7 + 10E5 + 200*1E2 + 32), z0= core_height*1E2, boundary_type = 'vacuum')
     assembly_prism = openmc.model.HexagonalPrism(edge_length = turnkey_size/math.sqrt(3), orientation = 'x', boundary_type = "reflective")
     fa_region = -assembly_prism & -zup_ & +zdn_
-    fa_cell = openmc.Cell(cell_id =  int(3E7 + 13E5 + 200*1E2 + 31), name = "fa1", fill = full_fa(1, g_hole, fuel, gaz, shell, coolant))
+    full_fa_u = full_fa(1, g_hole, fuel, gaz, shell, coolant)
+    fa_cell = openmc.Cell(cell_id =  int(3E7 + 13E5 + 200*1E2 + 31), name = "fa1", fill = full_fa_u)
     fa_cell.region = fa_region
     fa_universe = openmc.Universe(universe_id=int(4E7 + 7E5 + 201*1E2 + 33), cells=[fa_cell])
     geom = openmc.Geometry(fa_universe)
@@ -76,9 +77,9 @@ if __name__ == '__main__':
 
 
     #Computing settings
-    batches = 200
+    batches = 2000
     inactive = 10
-    particles = 1000
+    particles = 10000
 
     settings = openmc.Settings()
     settings.batches = batches
@@ -92,6 +93,38 @@ if __name__ == '__main__':
     settings.export_to_xml()
 
     tallies = openmc.Tallies()
+    splits = list(full_fa_u.cells.values())
+    print(splits)
+
+    # Instantiate flux Tally in moderator and fuel
+    tally = openmc.Tally(name='energovidilenie')
+    energy_filter = openmc.EnergyFilter([0., 20.0e6])
+    #tally.filters = [ openmc.MaterialFilter(  fuel_array + gadalunm_array ) ]
+    tally.filters = [openmc.CellFilter(splits)]
+
+    tally.filters.append(energy_filter)
+    tally.scores = ['fission']
+    tallies.append(tally)
+    tallies.export_to_xml()
 
     openmc.run()
 
+    sp = openmc.StatePoint('statepoint.200.h5')#на каждый шаг расчета сделан файл с результатами
+    energovidilenie = sp.get_tally(name='energovidilenie') #вернули энерговыделение
+
+    #Get a pandas dataframe for the mesh tally data
+    df = energovidilenie.get_pandas_dataframe()#обработали текст
+
+    # сохраняем изначальные результаты в файл
+    with open("results.txt", 'w') as f:
+        f.write(df.to_string())
+    values=energovidilenie.get_values()
+    values2=np.array(values.flatten())
+    meanval=sum(values2)/len(values2)
+    kq=values2/meanval
+    res = []
+    z_incriment = core_height/split_number
+    z_ = z_incriment/2
+    for i in range(0, split_number):
+        res.append((z_+z_incriment*i, kq[i]))
+    np.savetxt(f"kq.csv", res, delimiter="\t", fmt = "%.6f")
