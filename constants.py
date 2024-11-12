@@ -1,4 +1,4 @@
-split_number = 3
+split_number = 30
 core_height = 3.53 #m
 n_fa = 151
 r_fuel = 7.57/20 #sm
