@@ -45,10 +45,6 @@ if __name__ == '__main__':
     geom.export_to_xml()
 
 
-    z0 = 0
-    z_us = 400
-
-
     p = openmc.Plot()
 
     #cross section drawing
@@ -99,7 +95,6 @@ if __name__ == '__main__':
     # Instantiate flux Tally in moderator and fuel
     tally = openmc.Tally(name='energovidilenie')
     energy_filter = openmc.EnergyFilter([0., 20.0e6])
-    #tally.filters = [ openmc.MaterialFilter(  fuel_array + gadalunm_array ) ]
     tally.filters = [openmc.CellFilter(splits)]
 
     tally.filters.append(energy_filter)
@@ -109,7 +104,7 @@ if __name__ == '__main__':
 
     openmc.run()
 
-    sp = openmc.StatePoint('statepoint.200.h5')#на каждый шаг расчета сделан файл с результатами
+    sp = openmc.StatePoint(f'statepoint.{batches}.h5')#на каждый шаг расчета сделан файл с результатами
     energovidilenie = sp.get_tally(name='energovidilenie') #вернули энерговыделение
 
     #Get a pandas dataframe for the mesh tally data
