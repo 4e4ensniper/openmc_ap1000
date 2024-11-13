@@ -1,6 +1,7 @@
 import openmc
 import openmc.deplete
 import sys
+import numpy as np
 
 sys.path.append('../')
 from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number
@@ -12,6 +13,11 @@ from fuel_assembly import full_fa, water_full_fa
 sys.path.append('../'+'materials')
 from materials import g_hole, fuel, gaz, shell, coolant
 
+def write_floats_to_file(filename, float_array, elements_per_line):
+    with open(filename, 'w') as file:
+        for i in range(0, len(float_array), elements_per_line):
+            line = float_array[i:i + elements_per_line]  # Получаем срез массива
+            file.write('\t'.join(map(str, line)) + '\n')  # Преобразуем числа в строки и записываем в файл
 
 if __name__ == '__main__':
 
@@ -19,8 +25,12 @@ if __name__ == '__main__':
     mats.export_to_xml()
 
     fa_universe = []
+    splits = []
     for i in range(0, n_fa):
-        fa_universe.append(full_fa(i, g_hole, fuel, gaz, shell, coolant))
+        fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant)
+        fa_universe.append(fa_)
+        splits += list(fa_.cells.values())
+    print("The core is divided into", len(splits), "elements.")
     for i in range(n_fa, n_fa + 18):
         fa_universe.append(water_full_fa(i, coolant))
 
@@ -92,8 +102,6 @@ if __name__ == '__main__':
     geom = openmc.Geometry(reactor_universe)
     geom.export_to_xml()
 
-    z0 = 0
-    z_us = 400
 
     p = openmc.Plot()
 
@@ -124,9 +132,9 @@ if __name__ == '__main__':
 
 
 	#Computing settings
-    batches = 20
+    batches = 1000
     inactive = 10
-    particles = 1000
+    particles = 10000
 
     set = openmc.Settings()
     set.batches = batches
@@ -137,4 +145,32 @@ if __name__ == '__main__':
     set.source =openmc.Source(space = sourse_point)
     set.export_to_xml()
 
-    openmc.run()#, geometry_debug=True)
+    tallies = openmc.Tallies()
+
+    # Instantiate flux Tally in moderator and fuel
+    tally = openmc.Tally(name='energy_rel')
+    energy_filter = openmc.EnergyFilter([0., 20.0e6])
+    tally.filters = [openmc.CellFilter(splits)]
+
+    tally.filters.append(energy_filter)
+    tally.scores = ['fission']
+    tallies.append(tally)
+    tallies.export_to_xml()
+
+    openmc.run()
+
+    sp = openmc.StatePoint(f'statepoint.{batches}.h5')#на каждый шаг расчета сделан файл с результатами
+    energy_rel = sp.get_tally(name='energy_rel') #вернули энерговыделение
+
+    #Get a pandas dataframe for the mesh tally data
+    df = energy_rel.get_pandas_dataframe()#обработали текст
+
+    # сохраняем изначальные результаты в файл
+    with open("results.txt", 'w') as f:
+        f.write(df.to_string())
+    values=energy_rel.get_values()
+    values2=np.array(values.flatten())
+    meanval=sum(values2)/len(values2)
+    kq=values2/meanval
+
+    write_floats_to_file("kq_full.txt", kq, split_number)
