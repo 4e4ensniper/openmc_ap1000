@@ -2,6 +2,7 @@ import openmc
 import openmc.deplete
 import sys
 import numpy as np
+from math import sqrt
 
 sys.path.append('../')
 from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number
@@ -172,5 +173,25 @@ if __name__ == '__main__':
     values2=np.array(values.flatten())
     meanval=sum(values2)/len(values2)
     kq=values2/meanval
-
     write_floats_to_file("kq_full.txt", kq, split_number)
+
+    #Kr calculation
+    kr = []
+    for i in range(0, n_fa):
+        sum_ = 0
+        for j in range(0, split_number):
+            sum_ += kq[j+i*split_number]
+        kr_ = sum_/split_number
+        kr.append(kr_)
+    xy =[]
+    line = [4, 7, 10, 11, 12, 13, 12, 13, 12, 13, 12, 11, 10, 7, 4]
+    turnkey_size = turnkey_size/100
+    y = (-(len(line)//2)//2 - len(line)//2 + 0.5)*turnkey_size/sqrt(3)
+    for i in range(0,len(line)):
+        x = -(line[i]/2 + 0.5)*turnkey_size
+        for j in range(0,line[i]):
+            x += turnkey_size
+            xy.append((x,y))
+        y += 1.5*turnkey_size/sqrt(3)
+    combined_array = [(t[0], t[1], n) for t, n in zip(xy, kr)]
+    np.savetxt(f"kr.txt", combined_array, delimiter="\t", fmt = "%.6f")
