@@ -5,7 +5,7 @@ import numpy as np
 from math import sqrt
 
 sys.path.append('../')
-from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number
+from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line
 
 sys.path.append('../'+'fuel_assembly')
 from assembly_element import fa_split, water_fa_split
@@ -181,10 +181,8 @@ if __name__ == '__main__':
         sum_ = 0
         for j in range(0, split_number):
             sum_ += kq[j+i*split_number]
-        kr_ = sum_/split_number
-        kr.append(kr_)
+        kr.append(sum_/split_number)
     xy =[]
-    line = [4, 7, 10, 11, 12, 13, 12, 13, 12, 13, 12, 11, 10, 7, 4]
     turnkey_size = turnkey_size/100
     y = (-(len(line)//2)//2 - len(line)//2 + 0.5)*turnkey_size/sqrt(3)
     for i in range(0,len(line)):
@@ -195,3 +193,15 @@ if __name__ == '__main__':
         y += 1.5*turnkey_size/sqrt(3)
     combined_array = [(t[0], t[1], n) for t, n in zip(xy, kr)]
     np.savetxt(f"kr.txt", combined_array, delimiter="\t", fmt = "%.6f")
+
+    #Kz calculation
+    kz = []
+    increment_z = core_height/split_number
+    z = -core_height/2 + increment_z/2
+    for i in range(0, split_number):
+        sum_ = 0
+        for j in range(0, n_fa):
+            sum_ += kq[i+j*split_number]
+        kz.append((z,sum_/n_fa))
+        z += increment_z
+    np.savetxt(f"kz.txt", kz, delimiter="\t", fmt = "%.6f")
