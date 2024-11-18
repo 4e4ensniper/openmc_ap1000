@@ -5,10 +5,9 @@ import numpy as np
 from math import sqrt
 
 sys.path.append('../')
-from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line
+from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line, batches, particles, inactive
 
 sys.path.append('../'+'fuel_assembly')
-from assembly_element import fa_split, water_fa_split
 from fuel_assembly import full_fa, water_full_fa
 
 sys.path.append('../'+'materials')
@@ -18,7 +17,8 @@ def write_floats_to_file(filename, float_array, elements_per_line):
     with open(filename, 'w') as file:
         for i in range(0, len(float_array), elements_per_line):
             line = float_array[i:i + elements_per_line]  # Получаем срез массива
-            file.write('\t'.join(map(str, line)) + '\n')  # Преобразуем числа в строки и записываем в файл
+            file.write('\t'.join(f'{num:.7f}' for num in line) + '\n')
+            #file.write('\t'.join(map(str, line)) + '\n')  # Преобразуем числа в строки и записываем в файл
 
 if __name__ == '__main__':
 
@@ -32,8 +32,7 @@ if __name__ == '__main__':
         fa_universe.append(fa_)
         splits += list(fa_.cells.values())
     print("The core is divided into", len(splits), "elements.")
-    for i in range(n_fa, n_fa + 18):
-        fa_universe.append(water_full_fa(i, coolant))
+    fa_universe.append(water_full_fa(coolant[-1]))
 
     lat = openmc.HexLattice()
     lat.orientation = 'y'
@@ -43,12 +42,12 @@ if __name__ == '__main__':
     outer_universe = openmc.Universe(cells=(outer_coolant_cell,))
     lat.outer = outer_universe
 
-    ring8 = [fa_universe[n_fa]]+[fa_universe[n_fa+1]]+[fa_universe[56]]+[fa_universe[43]]+[fa_universe[31]]+[fa_universe[20]]+[fa_universe[n_fa+2]]
-    ring8 += [fa_universe[n_fa+3]]+[fa_universe[n_fa+4]]+[fa_universe[3]]+[fa_universe[2]]+[fa_universe[1]]+[fa_universe[0]] +[fa_universe[n_fa+5]]
-    ring8 += [fa_universe[n_fa+6]]+[fa_universe[n_fa+7]]+[fa_universe[11]]+[fa_universe[21]]+[fa_universe[32]]+[fa_universe[44]] +[fa_universe[n_fa+8]]
-    ring8 += [fa_universe[n_fa+9]]+[fa_universe[n_fa+10]]+[fa_universe[94]]+[fa_universe[107]]+[fa_universe[119]]+[fa_universe[130]] +[fa_universe[n_fa+11]]
-    ring8 += [fa_universe[n_fa+12]]+[fa_universe[n_fa+13]]+[fa_universe[147]]+[fa_universe[148]]+[fa_universe[149]]+[fa_universe[150]] +[fa_universe[n_fa+14]]
-    ring8 += [fa_universe[n_fa+15]]+[fa_universe[n_fa+16]]+[fa_universe[139]]+[fa_universe[129]]+[fa_universe[118]]+[fa_universe[106]] +[fa_universe[n_fa+17]]
+    ring8 = [fa_universe[n_fa]]+[fa_universe[n_fa]]+[fa_universe[56]]+[fa_universe[43]]+[fa_universe[31]]+[fa_universe[20]]+[fa_universe[n_fa]]
+    ring8 += [fa_universe[n_fa]]+[fa_universe[n_fa]]+[fa_universe[3]]+[fa_universe[2]]+[fa_universe[1]]+[fa_universe[0]] +[fa_universe[n_fa]]
+    ring8 += [fa_universe[n_fa]]+[fa_universe[n_fa]]+[fa_universe[11]]+[fa_universe[21]]+[fa_universe[32]]+[fa_universe[44]] +[fa_universe[n_fa]]
+    ring8 += [fa_universe[n_fa]]+[fa_universe[n_fa]]+[fa_universe[94]]+[fa_universe[107]]+[fa_universe[119]]+[fa_universe[130]] +[fa_universe[n_fa]]
+    ring8 += [fa_universe[n_fa]]+[fa_universe[n_fa]]+[fa_universe[147]]+[fa_universe[148]]+[fa_universe[149]]+[fa_universe[150]] +[fa_universe[n_fa]]
+    ring8 += [fa_universe[n_fa]]+[fa_universe[n_fa]]+[fa_universe[139]]+[fa_universe[129]]+[fa_universe[118]]+[fa_universe[106]] +[fa_universe[n_fa]]
 
     ring7 = [fa_universe[81]]+[fa_universe[68]]+[fa_universe[55]]+[fa_universe[42]]+[fa_universe[30]]+[fa_universe[19]]
     ring7 += [fa_universe[10]]+[fa_universe[9]]+[fa_universe[8]]+[fa_universe[7]]+[fa_universe[6]]+[fa_universe[5]]
@@ -133,10 +132,6 @@ if __name__ == '__main__':
 
 
 	#Computing settings
-    batches = 1000
-    inactive = 10
-    particles = 10000
-
     set = openmc.Settings()
     set.batches = batches
     set.inactive = inactive

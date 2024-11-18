@@ -9,7 +9,7 @@ from constants import split_number, core_height, n_fa, rod_pitch, turnkey_size
 #2?????__ - split number from bottom
 
 def fa_split(fa_num, layer_num, c_gaz, fuel, gaz, shell, coolant):
-    
+
     central_hole_cylinder = openmc.ZCylinder(surface_id=int(2E7 + 1E5 + fa_num*1E2 + layer_num), r=0.117)
     fuel_cylinder = openmc.ZCylinder(surface_id=int(2E7 + 2E5 + fa_num*1E2 + layer_num), r=0.378)
     gap_cylinder = openmc.ZCylinder(surface_id=int(2E7 + 3E5 + fa_num*1E2 + layer_num), r=0.386)
@@ -112,25 +112,3 @@ def fa_split(fa_num, layer_num, c_gaz, fuel, gaz, shell, coolant):
     assembly_cell.fill = lat
 
     return assembly_cell
-
-#water assenblys
-def water_fa_split(fa_num, layer_num, coolant):
-
-    d_z = core_height*1E2/split_number
-    zdn = openmc.ZPlane(surface_id=int(2E7 + 9E5 + fa_num*1E2 + layer_num), z0= layer_num * d_z)
-    zup = openmc.ZPlane(surface_id=int(2E7 + 10E5 + fa_num*1E2 + layer_num), z0= (layer_num + 1) * d_z)
-    if layer_num == 0:
-        zdn.boundary_type="vacuum"
-        zup.boundary_type="transmission"
-    elif layer_num == split_number - 1:
-        zdn.boundary_type="transmission"
-        zup.boundary_type="vacuum"
-    else:
-        zdn.boundary_type="transmission"
-        zup.boundary_type="transmission"
-    water_assembly_cell = openmc.Cell(cell_id = int(3E7 + 14E5 + fa_num*1E2 + layer_num), name=f'water_cell_assembly_{fa_num}_layer_{layer_num}')
-    hex_prizm = openmc.model.HexagonalPrism(edge_length = turnkey_size/math.sqrt(3), orientation = 'x', boundary_type = "transmission")
-    water_assembly_cell.region = -hex_prizm & -zup & +zdn
-    water_assembly_cell.fill = coolant
-
-    return water_assembly_cell
