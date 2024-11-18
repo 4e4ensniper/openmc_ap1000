@@ -5,14 +5,13 @@ import math
 
 import sys
 sys.path.append('../')
-
-from constants import split_number, core_height
+from constants import split_number, core_height, n_fa, batches, particles, inactive, turnkey_size
 sys.path.append('../'+'materials')
 from materials import g_hole, fuel, gaz, shell, coolant
-from assembly_element import fa_split, water_fa_split, turnkey_size
+from assembly_element import fa_split
 
 def full_fa(fa_num, c_gaz_list, fuel_list, gaz_list, shell_list, hc_list):
-    fa_universe_return = openmc.Universe(universe_id = int(4E7 + 5E5 + fa_num*1E2 + 31), name=f'fa_universe_{fa_num}')
+    fa_universe_return = openmc.Universe(universe_id = int(4E7 + 5E5 + fa_num*1E2 + split_number), name=f'fa_universe_{fa_num}')
     for i in range (0, split_number):
         num = fa_num*split_number + i
         root_cell = fa_split(fa_num, i, c_gaz_list[num], fuel_list[num], gaz_list[num], shell_list[num], hc_list[num])
@@ -20,13 +19,17 @@ def full_fa(fa_num, c_gaz_list, fuel_list, gaz_list, shell_list, hc_list):
 
     return fa_universe_return
 
-def water_full_fa(fa_num, hc_list):
-    fa_universe_return = openmc.Universe(universe_id = int(4E7 + 6E5 + fa_num*1E2 + 32), name=f'fa_universe_{fa_num}')
-    for i in range (0, split_number):
-        num = fa_num*split_number + i
-        root_cell = water_fa_split(fa_num, i, hc_list[num])
-        fa_universe_return.add_cell(root_cell)
-
+def water_full_fa(coolant):
+    fa_universe_return = openmc.Universe(universe_id = int(4E7 + 6E5 + n_fa*1E2 + split_number + 1), name=f'fa_universe_{n_fa}')
+    zdn = openmc.ZPlane(surface_id=int(2E7 + 9E5 + n_fa*1E2 + split_number), z0= 0)
+    zup = openmc.ZPlane(surface_id=int(2E7 + 10E5 + n_fa*1E2 + split_number+1), z0= core_height*1E2)
+    zdn.boundary_type="vacuum"
+    zup.boundary_type="vacuum"
+    water_assembly_cell = openmc.Cell(cell_id = int(3E7 + 14E5 + n_fa*1E2 + split_number), name='water_cell_assembly')
+    hex_prizm = openmc.model.HexagonalPrism(edge_length = turnkey_size/math.sqrt(3), orientation = 'x', boundary_type = "transmission")
+    water_assembly_cell.region = -hex_prizm & -zup & +zdn
+    water_assembly_cell.fill = coolant
+    fa_universe_return.add_cell(water_assembly_cell)
     return fa_universe_return
 
 if __name__ == '__main__':
@@ -73,9 +76,6 @@ if __name__ == '__main__':
 
 
     #Computing settings
-    batches = 2000
-    inactive = 10
-    particles = 10000
 
     settings = openmc.Settings()
     settings.batches = batches
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     kq=values2/meanval
     res = []
     z_incriment = core_height/split_number
-    z_ = z_incriment/2
+    z_ = z_incriment/2-core_height/2
     for i in range(0, split_number):
         res.append((z_+z_incriment*i, kq[i]))
     np.savetxt(f"kq.csv", res, delimiter="\t", fmt = "%.6f")

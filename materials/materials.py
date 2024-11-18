@@ -116,17 +116,13 @@ for i in range(0, n_fa):
         water.add_s_alpha_beta('c_H_in_H2O')
         coolant.append(water)
 
-#add water "fuel assemblys" for hexagonal form of core
-for i in range(n_fa, n_fa + 18):
-    for j in range (0, split_number):
-        #coolant definition
-        water = openmc.Material(material_id = int(1E7 + 5E5 + i*1E2 + j), name="H2O")
-        water.add_element('H', 2.0)
-        water.add_element('O', 1.0)
-        water.set_density('g/cm3', density_hc[j]*1E-3)
-        water.temperature = hc_temp[j] + 273.15
-        water.add_s_alpha_beta('c_H_in_H2O')
-        coolant.append(water)
+water = openmc.Material(material_id = int(1E7 + 5E5 + n_fa*1E2 + split_number), name="H2O")
+water.add_element('H', 2.0)
+water.add_element('O', 1.0)
+water.set_density('g/cm3', sum(density_hc)*1E-3/len(density_hc))
+water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
+water.add_s_alpha_beta('c_H_in_H2O')
+coolant.append(water)
 
 #reactor vessel steel SA-508
 steel_all = openmc.Material(name="SA508")

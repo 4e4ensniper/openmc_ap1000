@@ -11,3 +11,6 @@ core_barrel_out_r = 349.88/2 #sm
 #The number of fuel assemblies per row, starting from the bottom of the core map.
 line = [4, 7, 10, 11, 12, 13, 12, 13, 12, 13, 12, 11, 10, 7, 4]
 csv_path = "/home/ubuntu24/Desktop/openmc_ap1000/materials/temperature_distributions/"
+batches = 200
+inactive = 10
+particles = 10000
