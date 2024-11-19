@@ -72,7 +72,7 @@ g_hole = []
 #1??___?? - fuel asssembly number
 #1?????__ - split number from bottom
 
-for i in range(0, n_fa):
+for i in range(0, n_fa//6 + 1):
     for j in range(0, split_number):
 
         #helium definition in central hole
@@ -116,7 +116,7 @@ for i in range(0, n_fa):
         water.add_s_alpha_beta('c_H_in_H2O')
         coolant.append(water)
 
-water = openmc.Material(material_id = int(1E7 + 5E5 + n_fa*1E2 + split_number), name="H2O")
+water = openmc.Material(material_id = int(1E7 + 5E5 + (n_fa//2 + 1)*1E2 + split_number), name="H2O")
 water.add_element('H', 2.0)
 water.add_element('O', 1.0)
 water.set_density('g/cm3', sum(density_hc)*1E-3/len(density_hc))

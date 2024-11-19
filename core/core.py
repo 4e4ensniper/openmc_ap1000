@@ -5,7 +5,7 @@ import numpy as np
 from math import sqrt
 
 sys.path.append('../')
-from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line, batches, particles, inactive
+from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line, batches, particles, inactive, numbers
 
 sys.path.append('../'+'fuel_assembly')
 from fuel_assembly import full_fa, water_full_fa
@@ -27,10 +27,16 @@ if __name__ == '__main__':
 
     fa_universe = []
     splits = []
-    for i in range(0, n_fa):
+    dif_fa_universe = []
+    for i in range(0, n_fa//6 + 1):
         fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant)
-        fa_universe.append(fa_)
+        dif_fa_universe.append(fa_)
         splits += list(fa_.cells.values())
+    for i in range(0, n_fa):
+        fa_universe.append(dif_fa_universe[numbers[i]-1])
+        #splits += list(fa_universe[i].cells.values())
+
+
     print("The core is divided into", len(splits), "elements.")
     fa_universe.append(water_full_fa(coolant[-1]))
 

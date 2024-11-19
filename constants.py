@@ -14,3 +14,15 @@ csv_path = "/home/ubuntu24/Desktop/openmc_ap1000/materials/temperature_distribut
 batches = 200
 inactive = 10
 particles = 10000
+
+half_numbers = [1,  2,  3,  4,
+           5,  6,  7,  8,  9, 10,  5,
+           4, 10, 11, 12, 13, 14, 15, 11,  6,  1,
+           3,  9, 15, 16, 17, 18, 19, 16, 12,  7,  2,
+           2,  8, 14, 19, 20, 21, 22, 20, 17, 13,  8,  3,
+           1,  7, 13, 18, 22, 23, 24, 23, 21, 18, 14,  9, 4,
+           6, 12, 17, 21, 24, 25, 25, 24, 22, 19, 15, 10,
+           5, 11, 16, 22, 23, 25] #Half of the fuel assemblies number on the cartogram without the central cassette
+r_half_numbers = list(reversed(half_numbers))
+half_numbers.append(26)
+numbers = half_numbers + r_half_numbers
