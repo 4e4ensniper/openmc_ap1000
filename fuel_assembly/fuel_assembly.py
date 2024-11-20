@@ -20,12 +20,12 @@ def full_fa(fa_num, c_gaz_list, fuel_list, gaz_list, shell_list, hc_list):
     return fa_universe_return
 
 def water_full_fa(coolant):
-    fa_universe_return = openmc.Universe(universe_id = int(4E7 + 6E5 + n_fa*1E2 + split_number + 1), name=f'fa_universe_{n_fa}')
-    zdn = openmc.ZPlane(surface_id=int(2E7 + 9E5 + n_fa*1E2 + split_number), z0= 0)
-    zup = openmc.ZPlane(surface_id=int(2E7 + 10E5 + n_fa*1E2 + split_number+1), z0= core_height*1E2)
+    fa_universe_return = openmc.Universe(universe_id = int(4E7 + 6E5 + (n_fa//6 + 1)*1E2 + split_number + 1), name=f'fa_universe_{n_fa}')
+    zdn = openmc.ZPlane(surface_id=int(2E7 + 9E5 + (n_fa//6 + 1)*1E2 + split_number), z0= 0)
+    zup = openmc.ZPlane(surface_id=int(2E7 + 10E5 + (n_fa//6 + 1)*1E2 + split_number+1), z0= core_height*1E2)
     zdn.boundary_type="vacuum"
     zup.boundary_type="vacuum"
-    water_assembly_cell = openmc.Cell(cell_id = int(3E7 + 14E5 + n_fa*1E2 + split_number), name='water_cell_assembly')
+    water_assembly_cell = openmc.Cell(cell_id = int(3E7 + 14E5 + (n_fa//6 + 1)*1E2 + split_number), name='water_cell_assembly')
     hex_prizm = openmc.model.HexagonalPrism(edge_length = turnkey_size/math.sqrt(3), orientation = 'x', boundary_type = "transmission")
     water_assembly_cell.region = -hex_prizm & -zup & +zdn
     water_assembly_cell.fill = coolant
