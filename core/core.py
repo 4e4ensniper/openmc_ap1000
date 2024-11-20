@@ -3,6 +3,7 @@ import openmc.deplete
 import sys
 import numpy as np
 from math import sqrt
+from collections import Counter
 
 sys.path.append('../')
 from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line, batches, particles, inactive, numbers, n_dif
@@ -171,10 +172,12 @@ if __name__ == '__main__':
         f.write(df.to_string())
     values=energy_rel.get_values()
     values2=np.array(values.flatten())
-    #########################################################################
-    for i in range((n_dif - 1) * split_number, n_dif * split_number):
-        values2[i] *= 6
-    #########################################################################
+    count = Counter(numbers)
+    for i in range(0, n_dif):
+        divider = count[i+1]
+        for j in range(i * split_number, (i + 1) * split_number):
+            values2[j] /= divider
+
     meanval=sum(values2)/len(values2)
     kq_=values2/meanval
 
