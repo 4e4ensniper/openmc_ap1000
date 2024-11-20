@@ -5,7 +5,7 @@ import numpy as np
 from math import sqrt
 
 sys.path.append('../')
-from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line, batches, particles, inactive, numbers
+from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line, batches, particles, inactive, numbers, n_dif
 
 sys.path.append('../'+'fuel_assembly')
 from fuel_assembly import full_fa, water_full_fa
@@ -18,7 +18,6 @@ def write_floats_to_file(filename, float_array, elements_per_line):
         for i in range(0, len(float_array), elements_per_line):
             line = float_array[i:i + elements_per_line]  # Получаем срез массива
             file.write('\t'.join(f'{num:.7f}' for num in line) + '\n')
-            #file.write('\t'.join(map(str, line)) + '\n')  # Преобразуем числа в строки и записываем в файл
 
 if __name__ == '__main__':
 
@@ -28,7 +27,7 @@ if __name__ == '__main__':
     fa_universe = []
     splits = []
     dif_fa_universe = []
-    for i in range(0, n_fa//6 + 1):
+    for i in range(0, n_dif):
         fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant)
         dif_fa_universe.append(fa_)
         splits += list(fa_.cells.values())
@@ -172,8 +171,18 @@ if __name__ == '__main__':
         f.write(df.to_string())
     values=energy_rel.get_values()
     values2=np.array(values.flatten())
+    #########################################################################
+    for i in range((n_dif - 1) * split_number, n_dif * split_number):
+        values2[i] *= 6
+    #########################################################################
     meanval=sum(values2)/len(values2)
-    kq=values2/meanval
+    kq_=values2/meanval
+
+    kq = []
+    for i in range(0, n_fa):
+        for j in range(0, split_number):
+            kq.append(kq_[(numbers[i] - 1) * split_number + j])
+
     write_floats_to_file("kq_full.txt", kq, split_number)
 
     #Kr calculation

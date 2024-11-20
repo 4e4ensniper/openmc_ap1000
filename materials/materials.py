@@ -4,7 +4,7 @@ from math import pi
 import openmc
 import sys
 sys.path.append('../')
-from constants import split_number, core_height, r_fuel, r_hole, fr_number, n_fa, csv_path
+from constants import split_number, core_height, r_fuel, r_hole, fr_number, n_fa, csv_path, n_dif
 
 #materials specifications
 #we have 1 material complex for each split elemen
@@ -72,7 +72,7 @@ g_hole = []
 #1??___?? - fuel asssembly number
 #1?????__ - split number from bottom
 
-for i in range(0, n_fa//6 + 1):
+for i in range(0, n_dif):
     for j in range(0, split_number):
 
         #helium definition in central hole
