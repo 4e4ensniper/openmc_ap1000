@@ -19,6 +19,7 @@ particles = 10000
 #Number of different fuel assemblies defined as different universes
 n_dif = 18
 #An array that contains the numbers of the various universes of fuel assemblies on the cartogram.
+
 half_numbers = [1, 2, 2, 1,
                 3, 4, 5, 6, 5, 4, 3,
                 1, 4, 7, 8, 9, 9, 8, 7, 4, 1,
@@ -27,6 +28,18 @@ half_numbers = [1, 2, 2, 1,
                 1, 5, 9, 12, 14, 15, 16, 15, 14, 12, 9, 5, 1,
                 4, 8, 11, 14, 16, 17, 17, 16, 14, 11, 8, 4,
                 3, 7, 10, 13, 15, 17]
+
+g1 = [9]
+g2 = [5]
+g3 = [12]
+g4 = [7, 16]
+g5 = [18, 13]
+
+h1 = 1
+h2 = 1
+h3 = 1
+h4 = 1
+h5 = 1
 
 '''
 half_numbers = [1,  2,  3,  4,

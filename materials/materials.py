@@ -5,7 +5,7 @@ import openmc
 import sys
 sys.path.append('../')
 from constants import split_number, core_height, r_fuel, r_hole, fr_number, n_fa, csv_path, n_dif
-
+from constants import g1, g2, g3, g4, g5, h1, h2, h3, h4, h5
 #materials specifications
 #we have 1 material complex for each split elemen
 
@@ -45,6 +45,37 @@ def average_value(n, filename, length):
         f_av.append(sum_f_z/(2*d_z))
     return f_av
 
+def cr_steel(i, j, num, temp):
+    _08x18h10t = openmc.Material(material_id = int(1E7 + 6E5 + i*1E2 + j), name = "08x18h10t")
+    _08x18h10t.add_element('Fe', 0.67665,'wo')
+    _08x18h10t.add_element('Cr', 0.18,'wo')
+    _08x18h10t.add_element('Ni', 0.1,'wo')
+    _08x18h10t.add_element('Ti', 0.006,'wo')
+    _08x18h10t.add_element('C', 0.0008,'wo')
+    _08x18h10t.add_element('Si', 0.008,'wo')
+    _08x18h10t.add_element('Mn', 0.02,'wo')
+    _08x18h10t.add_element('Mo', 0.005,'wo')
+    _08x18h10t.add_element('S', 0.0002,'wo')
+    _08x18h10t.add_element('P', 0.00035,'wo')
+    _08x18h10t.add_element('Cu', 0.003,'wo')
+    _08x18h10t.set_density('g/cm3', 7.85)
+    _08x18h10t.temperature = temp
+    return _08x18h10t
+
+def b4c(i, j, num, temp):
+    b4c_ = openmc.Material(material_id = int(1E7 + num * 1E5 + i*1E2 + j), name = "b4c_absorber")
+    b4c_.set_density('g/cm3', 1.7)
+    b4c_.add_element('B', 4)
+    b4c_.add_element('C', 1)
+    b4c_.temperature = temp
+    return b4c_
+
+def helium_(i, j, num, temp):
+    helium=openmc.Material(material_id = int(1E7 + num * 1E5 + i*1E2 + j), name = "He")
+    helium.add_element('He', 1.0)
+    helium.temperature = temp
+    helium.set_density('g/cm3', 3.24e-3)
+    return helium
 density_hc = []
 fuel_temp_eff = []
 helium_temp = []
@@ -76,11 +107,7 @@ for i in range(0, n_dif):
     for j in range(0, split_number):
 
         #helium definition in central hole
-        c_helium=openmc.Material(material_id = int(1E7 + 1E5 + i*1E2 + j), name = "He")
-        c_helium.add_element('He', 1.0)
-        c_helium.temperature = hole_helium_temp[j] + 273.15
-        c_helium.set_density('g/cm3', 3.24e-3)
-        g_hole.append(c_helium)
+        g_hole.append(helium_(i, j, 1, hole_helium_temp[j] + 273.15))
 
         #fuel definition
         fu = openmc.Material(material_id = int(1E7 + 2E5 + i*1E2 + j), name = "UO2")
@@ -93,11 +120,7 @@ for i in range(0, n_dif):
         fuel.append(fu)
 
         #helium definition in gap
-        helium=openmc.Material(material_id = int(1E7 + 3E5 + i*1E2 + j), name = "He")
-        helium.add_element('He', 1.0)
-        helium.temperature = helium_temp[j] + 273.15
-        helium.set_density('g/cm3', 3.24e-3)
-        gaz.append(helium)
+        gaz.append(helium_(i, j, 3, helium_temp[j] + 273.15))
 
         #shell definition
         shell_alloy = openmc.Material(material_id = int(1E7 + 4E5 + i*1E2 + j), name = "110")
@@ -116,7 +139,31 @@ for i in range(0, n_dif):
         water.add_s_alpha_beta('c_H_in_H2O')
         coolant.append(water)
 
-water = openmc.Material(material_id = int(1E7 + 5E5 + (n_fa//2 + 1)*1E2 + split_number), name="H2O")
+cr_shell = []
+boron_carbide = []
+for i in range(0, len(g1)):
+    for j in range(0, h1):
+        cr_shell.append(cr_steel(g1[i], j, 6, hc_temp[split_number - 1 - j] + 273.15))
+        boron_carbide.append(b4c(g1[i], j, 7, hc_temp[split_number - 1 - j] + 273.15))
+for i in range(0, len(g2)):
+    for j in range(0, h2):
+        cr_shell.append(cr_steel(g2[i], j, 6, hc_temp[split_number - 1 - j] + 273.15 ))
+        boron_carbide.append(b4c(g2[i], j, 7, hc_temp[split_number - 1 - j] + 273.15))
+for i in range(0, len(g3)):
+    for j in range(0, h3):
+        cr_shell.append(cr_steel(g3[i], j, 6, hc_temp[split_number - 1 - j] + 273.15 ))
+        boron_carbide.append(b4c(g3[i], j, 7, hc_temp[split_number - 1 - j] + 273.15))
+for i in range(0, len(g4)):
+    for j in range(0, h4):
+        cr_shell.append(cr_steel(g4[i], j, 6, hc_temp[split_number - 1 - j] + 273.15 ))
+        boron_carbide.append(b4c(g4[i], j, 7, hc_temp[split_number - 1 - j] + 273.15))
+for i in range(0, len(g5)):
+    for j in range(0, h5):
+        cr_shell.append(cr_steel(g5[i], j, 6, hc_temp[split_number - 1 - j] + 273.15 ))
+        boron_carbide.append(b4c(g5[i], j, 7, hc_temp[split_number - 1 - j] + 273.15))
+
+
+water = openmc.Material(material_id = int(1E7 + 8E5 + n_dif*1E2 + split_number), name="H2O")
 water.add_element('H', 2.0)
 water.add_element('O', 1.0)
 water.set_density('g/cm3', sum(density_hc)*1E-3/len(density_hc))
@@ -125,7 +172,7 @@ water.add_s_alpha_beta('c_H_in_H2O')
 coolant.append(water)
 
 #reactor vessel steel SA-508
-steel_all = openmc.Material(name="SA508")
+steel_all = openmc.Material(material_id = int(1E7 + 9E5 + n_dif*1E2 + split_number),name="SA508")
 steel_all.add_element('C', 0.00206,'wo')
 steel_all.add_element('Si', 0.00321, 'wo')
 steel_all.add_element('Mn', 0.01280, 'wo')

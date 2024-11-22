@@ -1,6 +1,6 @@
 import openmc
 import math
-from constants import split_number, core_height, n_fa, rod_pitch, turnkey_size
+from constants import split_number, core_height, rod_pitch, turnkey_size
 
 #regions ID definition
 #2??????? - first 2
