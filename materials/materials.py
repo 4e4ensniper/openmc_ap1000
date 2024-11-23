@@ -139,28 +139,40 @@ for i in range(0, n_dif):
         water.add_s_alpha_beta('c_H_in_H2O')
         coolant.append(water)
 
-cr_shell = []
-boron_carbide = []
+cr_shell1 = []
+boron_carbide1 = []
+
+cr_shell2 = []
+boron_carbide2 = []
+
+cr_shell3 = []
+boron_carbide3= []
+
+cr_shell4 = []
+boron_carbide4 = []
+
+cr_shell5 = []
+boron_carbide5 = []
 for i in range(0, len(g1)):
     for j in range(0, h1):
-        cr_shell.append(cr_steel(g1[i], j, 6, hc_temp[split_number - 1 - j] + 273.15))
-        boron_carbide.append(b4c(g1[i], j, 7, hc_temp[split_number - 1 - j] + 273.15))
+        cr_shell1.append(cr_steel(g1[i], j, 6, hc_temp[split_number - h1 + j] + 273.15))
+        boron_carbide1.append(b4c(g1[i], j, 7, hc_temp[split_number - h1 + j] + 273.15))
 for i in range(0, len(g2)):
     for j in range(0, h2):
-        cr_shell.append(cr_steel(g2[i], j, 6, hc_temp[split_number - 1 - j] + 273.15 ))
-        boron_carbide.append(b4c(g2[i], j, 7, hc_temp[split_number - 1 - j] + 273.15))
+        cr_shell2.append(cr_steel(g2[i], j, 6, hc_temp[split_number - h1 + j] + 273.15 ))
+        boron_carbide2.append(b4c(g2[i], j, 7, hc_temp[split_number - h1 + j] + 273.15))
 for i in range(0, len(g3)):
     for j in range(0, h3):
-        cr_shell.append(cr_steel(g3[i], j, 6, hc_temp[split_number - 1 - j] + 273.15 ))
-        boron_carbide.append(b4c(g3[i], j, 7, hc_temp[split_number - 1 - j] + 273.15))
+        cr_shell3.append(cr_steel(g3[i], j, 6, hc_temp[split_number - h1 + j] + 273.15 ))
+        boron_carbide3.append(b4c(g3[i], j, 7, hc_temp[split_number - h1 + j] + 273.15))
 for i in range(0, len(g4)):
     for j in range(0, h4):
-        cr_shell.append(cr_steel(g4[i], j, 6, hc_temp[split_number - 1 - j] + 273.15 ))
-        boron_carbide.append(b4c(g4[i], j, 7, hc_temp[split_number - 1 - j] + 273.15))
+        cr_shell4.append(cr_steel(g4[i], j, 6, hc_temp[split_number - h1 + j] + 273.15 ))
+        boron_carbide4.append(b4c(g4[i], j, 7, hc_temp[split_number - h1 + j] + 273.15))
 for i in range(0, len(g5)):
     for j in range(0, h5):
-        cr_shell.append(cr_steel(g5[i], j, 6, hc_temp[split_number - 1 - j] + 273.15 ))
-        boron_carbide.append(b4c(g5[i], j, 7, hc_temp[split_number - 1 - j] + 273.15))
+        cr_shell5.append(cr_steel(g5[i], j, 6, hc_temp[split_number - h1 + j] + 273.15 ))
+        boron_carbide5.append(b4c(g5[i], j, 7, hc_temp[split_number - h1 + j] + 273.15))
 
 
 water = openmc.Material(material_id = int(1E7 + 8E5 + n_dif*1E2 + split_number), name="H2O")
