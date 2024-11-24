@@ -3,9 +3,11 @@ import numpy as np
 from math import pi
 import openmc
 import sys
+
+import openmc.model
 sys.path.append('../')
 from constants import split_number, core_height, r_fuel, r_hole, fr_number, n_fa, csv_path, n_dif
-from constants import g1, g2, g3, g4, g5, h1, h2, h3, h4, h5
+from constants import g1, g2, g3, g4, g5, h1, h2, h3, h4, h5, b_ppm
 #materials specifications
 #we have 1 material complex for each split elemen
 
@@ -47,17 +49,17 @@ def average_value(n, filename, length):
 
 def cr_steel(i, j, num, temp):
     _08x18h10t = openmc.Material(material_id = int(1E7 + num*1E5 + i*1E2 + j), name = "08x18h10t")
-    _08x18h10t.add_element('Fe', 0.67665,'wo')
-    _08x18h10t.add_element('Cr', 0.18,'wo')
-    _08x18h10t.add_element('Ni', 0.1,'wo')
-    _08x18h10t.add_element('Ti', 0.006,'wo')
-    _08x18h10t.add_element('C', 0.0008,'wo')
-    _08x18h10t.add_element('Si', 0.008,'wo')
-    _08x18h10t.add_element('Mn', 0.02,'wo')
-    _08x18h10t.add_element('Mo', 0.005,'wo')
-    _08x18h10t.add_element('S', 0.0002,'wo')
-    _08x18h10t.add_element('P', 0.00035,'wo')
-    _08x18h10t.add_element('Cu', 0.003,'wo')
+    _08x18h10t.add_element('Fe', 67.665,'wo')
+    _08x18h10t.add_element('Cr', 18.0,'wo')
+    _08x18h10t.add_element('Ni', 10.0,'wo')
+    _08x18h10t.add_element('Ti', 0.6,'wo')
+    _08x18h10t.add_element('C', 0.08,'wo')
+    _08x18h10t.add_element('Si', 0.8,'wo')
+    _08x18h10t.add_element('Mn', 2.0,'wo')
+    _08x18h10t.add_element('Mo', 0.5,'wo')
+    _08x18h10t.add_element('S', 0.02,'wo')
+    _08x18h10t.add_element('P', 0.035,'wo')
+    _08x18h10t.add_element('Cu', 0.3,'wo')
     _08x18h10t.set_density('g/cm3', 7.85)
     _08x18h10t.temperature = temp
     return _08x18h10t
@@ -131,12 +133,19 @@ for i in range(0, n_dif):
         shell.append(shell_alloy)
 
         #coolant definition
+
+        water = openmc.model.borated_water(boron_ppm = b_ppm, density=density_hc[j]*1E-3)
+        water.id = int(1E7 + 5E5 + i*1E2 + j)
+        water.temperature = hc_temp[j] + 273.15
+        water.name = 'H2O'
+        '''
         water = openmc.Material(material_id = int(1E7 + 5E5 + i*1E2 + j), name = "H2O")
         water.add_element('H', 2.0)
         water.add_element('O', 1.0)
         water.set_density('g/cm3', density_hc[j]*1E-3)
         water.temperature = hc_temp[j] + 273.15
         water.add_s_alpha_beta('c_H_in_H2O')
+        '''
         coolant.append(water)
 
 cr_shell1 = []
@@ -159,7 +168,7 @@ for i in range(0, len(g1)):
         boron_carbide1.append(b4c(g1[i], j, 7, hc_temp[split_number - h1 + j] + 273.15))
 for i in range(0, len(g2)):
     for j in range(0, h2):
-        cr_shell2.append(cr_steel(g2[i], j, 6, hc_temp[split_number - h2 + j] + 273.15 ))
+        cr_shell2.append(cr_steel(g2[i], j, 6, hc_temp[split_number - h2 + j] + 273.15))
         boron_carbide2.append(b4c(g2[i], j, 7, hc_temp[split_number - h2 + j] + 273.15))
 for i in range(0, len(g3)):
     for j in range(0, h3):
@@ -167,34 +176,41 @@ for i in range(0, len(g3)):
         boron_carbide3.append(b4c(g3[i], j, 7, hc_temp[split_number - h3 + j] + 273.15))
 for i in range(0, len(g4)):
     for j in range(0, h4):
-        cr_shell4.append(cr_steel(g4[i], j, 6, hc_temp[split_number - h4 + j] + 273.15 ))
+        cr_shell4.append(cr_steel(g4[i], j, 6, hc_temp[split_number - h4 + j] + 273.15))
         boron_carbide4.append(b4c(g4[i], j, 7, hc_temp[split_number - h4 + j] + 273.15))
 for i in range(0, len(g5)):
     for j in range(0, h5):
-        cr_shell5.append(cr_steel(g5[i], j, 6, hc_temp[split_number - h5 + j] + 273.15 ))
+        cr_shell5.append(cr_steel(g5[i], j, 6, hc_temp[split_number - h5 + j] + 273.15))
         boron_carbide5.append(b4c(g5[i], j, 7, hc_temp[split_number - h5 + j] + 273.15))
 
 
+water = openmc.model.borated_water(boron_ppm = b_ppm, density=sum(density_hc)*1E-3/len(density_hc))
+water.id = int(1E7 + 8E5 + n_dif*1E2 + split_number)
+water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
+water.name = 'H2O'
+print(water)
+'''
 water = openmc.Material(material_id = int(1E7 + 8E5 + n_dif*1E2 + split_number), name="H2O")
 water.add_element('H', 2.0)
 water.add_element('O', 1.0)
 water.set_density('g/cm3', sum(density_hc)*1E-3/len(density_hc))
 water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
 water.add_s_alpha_beta('c_H_in_H2O')
+'''
 coolant.append(water)
 
 #reactor vessel steel SA-508
 steel_all = openmc.Material(material_id = int(1E7 + 9E5 + n_dif*1E2 + split_number),name="SA508")
-steel_all.add_element('C', 0.00206,'wo')
-steel_all.add_element('Si', 0.00321, 'wo')
-steel_all.add_element('Mn', 0.01280, 'wo')
-steel_all.add_element('P', 0.00002, 'wo')
-steel_all.add_element('S', 0.00014, 'wo')
-steel_all.add_element('Cr', 0.00140, 'wo')
-steel_all.add_element('Ni', 0.00644, 'wo')
-steel_all.add_element('Fe', 0.969, 'wo')
-steel_all.add_element('Mo', 0.00493, 'wo')
-steel_all.temperature = 280.7 + 273.15
+steel_all.add_element('C', 0.206,'wo')
+steel_all.add_element('Si', 0.321, 'wo')
+steel_all.add_element('Mn', 1.280, 'wo')
+steel_all.add_element('P', 0.002, 'wo')
+steel_all.add_element('S', 0.014, 'wo')
+steel_all.add_element('Cr', 0.140, 'wo')
+steel_all.add_element('Ni', 0.644, 'wo')
+steel_all.add_element('Fe', 96.9, 'wo')
+steel_all.add_element('Mo', 0.493, 'wo')
+steel_all.temperature = hc_temp[0] + 273.15
 steel_all.set_density('g/cm3', 8.05)
 shell.append(steel_all)
 

@@ -8,6 +8,7 @@ rod_pitch = 1.275 #sm
 turnkey_size = 23.4 #sm
 core_barrel_in_r = 339.72/2 #sm
 core_barrel_out_r = 349.88/2 #sm
+b_ppm = 16 #g/kg
 #The number of fuel assemblies per row, starting from the bottom of the core map.
 line = [4, 7, 10, 11, 12, 13, 12, 13, 12, 13, 12, 11, 10, 7, 4]
 #Path to the location of files with temperature distributions.
@@ -54,3 +55,5 @@ half_numbers = [1,  2,  3,  4,
 r_half_numbers = list(reversed(half_numbers))
 half_numbers.append(n_dif)
 numbers = half_numbers + r_half_numbers
+
+b_ppm = 1/(1 + 61.83/18.0 * (1/(b_ppm*1E-3)-1)) * 1E-2
