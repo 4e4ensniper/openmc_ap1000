@@ -14,7 +14,7 @@ def full_fa(fa_num, c_gaz_list, fuel_list, gaz_list, shell_list, hc_list, b4c_li
     fa_universe_return = openmc.Universe(universe_id = int(4E7 + 5E5 + fa_num*1E2 + split_number), name=f'fa_universe_{fa_num}')
     for i in range (0, split_number - cr_depth):
         num = fa_num*split_number + i
-        root_cell = fa_split(fa_num, i, c_gaz_list[num], fuel_list[num], gaz_list[num], shell_list[num], hc_list[num], b4c_list[0], cr_steel_list[0], 0)
+        root_cell = fa_split(fa_num, i, c_gaz_list[num], fuel_list[num], gaz_list[num], shell_list[num], hc_list[num], 0, 0, 0)
         fa_universe_return.add_cell(root_cell)
     for i in range (split_number - cr_depth, split_number):
         num = fa_num*split_number + i
@@ -94,7 +94,6 @@ if __name__ == '__main__':
 
     tallies = openmc.Tallies()
     splits = list(full_fa_u.cells.values())
-    print(splits)
 
     # Instantiate flux Tally in moderator and fuel
     tally = openmc.Tally(name='energovidilenie')

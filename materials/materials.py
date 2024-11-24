@@ -46,7 +46,7 @@ def average_value(n, filename, length):
     return f_av
 
 def cr_steel(i, j, num, temp):
-    _08x18h10t = openmc.Material(material_id = int(1E7 + 6E5 + i*1E2 + j), name = "08x18h10t")
+    _08x18h10t = openmc.Material(material_id = int(1E7 + num*1E5 + i*1E2 + j), name = "08x18h10t")
     _08x18h10t.add_element('Fe', 0.67665,'wo')
     _08x18h10t.add_element('Cr', 0.18,'wo')
     _08x18h10t.add_element('Ni', 0.1,'wo')
@@ -65,8 +65,8 @@ def cr_steel(i, j, num, temp):
 def b4c(i, j, num, temp):
     b4c_ = openmc.Material(material_id = int(1E7 + num * 1E5 + i*1E2 + j), name = "b4c_absorber")
     b4c_.set_density('g/cm3', 1.7)
-    b4c_.add_element('B', 4)
-    b4c_.add_element('C', 1)
+    b4c_.add_element('B', 4.0, enrichment=80.0, enrichment_target='B10',  enrichment_type='wo')
+    b4c_.add_element('C', 1.0)
     b4c_.temperature = temp
     return b4c_
 
@@ -111,7 +111,7 @@ for i in range(0, n_dif):
 
         #fuel definition
         fu = openmc.Material(material_id = int(1E7 + 2E5 + i*1E2 + j), name = "UO2")
-        fu.add_element('U', 1.0, enrichment = 4.95)
+        fu.add_element('U', 1.0, enrichment = 4.95, enrichment_type='wo')
         fu.add_element('O', 2.0)
         fu.set_density('g/cm3', 10.48)
         fu.temperature = fuel_temp_eff[j] + 273.15
@@ -159,20 +159,20 @@ for i in range(0, len(g1)):
         boron_carbide1.append(b4c(g1[i], j, 7, hc_temp[split_number - h1 + j] + 273.15))
 for i in range(0, len(g2)):
     for j in range(0, h2):
-        cr_shell2.append(cr_steel(g2[i], j, 6, hc_temp[split_number - h1 + j] + 273.15 ))
-        boron_carbide2.append(b4c(g2[i], j, 7, hc_temp[split_number - h1 + j] + 273.15))
+        cr_shell2.append(cr_steel(g2[i], j, 6, hc_temp[split_number - h2 + j] + 273.15 ))
+        boron_carbide2.append(b4c(g2[i], j, 7, hc_temp[split_number - h2 + j] + 273.15))
 for i in range(0, len(g3)):
     for j in range(0, h3):
-        cr_shell3.append(cr_steel(g3[i], j, 6, hc_temp[split_number - h1 + j] + 273.15 ))
-        boron_carbide3.append(b4c(g3[i], j, 7, hc_temp[split_number - h1 + j] + 273.15))
+        cr_shell3.append(cr_steel(g3[i], j, 6, hc_temp[split_number - h3 + j] + 273.15))
+        boron_carbide3.append(b4c(g3[i], j, 7, hc_temp[split_number - h3 + j] + 273.15))
 for i in range(0, len(g4)):
     for j in range(0, h4):
-        cr_shell4.append(cr_steel(g4[i], j, 6, hc_temp[split_number - h1 + j] + 273.15 ))
-        boron_carbide4.append(b4c(g4[i], j, 7, hc_temp[split_number - h1 + j] + 273.15))
+        cr_shell4.append(cr_steel(g4[i], j, 6, hc_temp[split_number - h4 + j] + 273.15 ))
+        boron_carbide4.append(b4c(g4[i], j, 7, hc_temp[split_number - h4 + j] + 273.15))
 for i in range(0, len(g5)):
     for j in range(0, h5):
-        cr_shell5.append(cr_steel(g5[i], j, 6, hc_temp[split_number - h1 + j] + 273.15 ))
-        boron_carbide5.append(b4c(g5[i], j, 7, hc_temp[split_number - h1 + j] + 273.15))
+        cr_shell5.append(cr_steel(g5[i], j, 6, hc_temp[split_number - h5 + j] + 273.15 ))
+        boron_carbide5.append(b4c(g5[i], j, 7, hc_temp[split_number - h5 + j] + 273.15))
 
 
 water = openmc.Material(material_id = int(1E7 + 8E5 + n_dif*1E2 + split_number), name="H2O")
