@@ -5,18 +5,22 @@ import math
 
 import sys
 sys.path.append('../')
-from constants import split_number, core_height, n_fa, batches, particles, inactive, turnkey_size
+from constants import split_number, core_height, n_fa, batches, particles, inactive, turnkey_size, h1
 sys.path.append('../'+'materials')
-from materials import g_hole, fuel, gaz, shell, coolant
+from materials import g_hole, fuel, gaz, shell, coolant, cr_shell1, boron_carbide1
 from assembly_element import fa_split
 
-def full_fa(fa_num, c_gaz_list, fuel_list, gaz_list, shell_list, hc_list):
+def full_fa(fa_num, c_gaz_list, fuel_list, gaz_list, shell_list, hc_list, b4c_list, cr_steel_list, cr_depth):
     fa_universe_return = openmc.Universe(universe_id = int(4E7 + 5E5 + fa_num*1E2 + split_number), name=f'fa_universe_{fa_num}')
-    for i in range (0, split_number):
+    for i in range (0, split_number - cr_depth):
         num = fa_num*split_number + i
-        root_cell = fa_split(fa_num, i, c_gaz_list[num], fuel_list[num], gaz_list[num], shell_list[num], hc_list[num])
+        root_cell = fa_split(fa_num, i, c_gaz_list[num], fuel_list[num], gaz_list[num], shell_list[num], hc_list[num], 0, 0, 0)
         fa_universe_return.add_cell(root_cell)
-
+    for i in range (split_number - cr_depth, split_number):
+        num = fa_num*split_number + i
+        cr_num = i - (split_number - cr_depth)
+        root_cell = fa_split(fa_num, i, c_gaz_list[num], fuel_list[num], gaz_list[num], shell_list[num], hc_list[num], b4c_list[cr_num], cr_steel_list[cr_num], 1)
+        fa_universe_return.add_cell(root_cell)
     return fa_universe_return
 
 def water_full_fa(coolant):
@@ -34,13 +38,13 @@ def water_full_fa(coolant):
 
 if __name__ == '__main__':
 
-    mats = openmc.Materials((*g_hole, *fuel, *gaz, *shell, *coolant))
+    mats = openmc.Materials((*g_hole, *fuel, *gaz, *shell, *coolant, *cr_shell1, *boron_carbide1))
     mats.export_to_xml()
     zdn_ = openmc.ZPlane(surface_id=int(2E7 + 9E5 + 200*1E2 + 31), z0= 0, boundary_type = 'vacuum')
     zup_ = openmc.ZPlane(surface_id=int(2E7 + 10E5 + 200*1E2 + 32), z0= core_height*1E2, boundary_type = 'vacuum')
     assembly_prism = openmc.model.HexagonalPrism(edge_length = turnkey_size/math.sqrt(3), orientation = 'x', boundary_type = "reflective")
     fa_region = -assembly_prism & -zup_ & +zdn_
-    full_fa_u = full_fa(1, g_hole, fuel, gaz, shell, coolant)
+    full_fa_u = full_fa(1, g_hole, fuel, gaz, shell, coolant, boron_carbide1, cr_shell1, h1 )
     fa_cell = openmc.Cell(cell_id =  int(3E7 + 13E5 + 200*1E2 + 31), name = "fa1", fill = full_fa_u)
     fa_cell.region = fa_region
     fa_universe = openmc.Universe(universe_id=int(4E7 + 7E5 + 201*1E2 + 33), cells=[fa_cell])
@@ -90,7 +94,6 @@ if __name__ == '__main__':
 
     tallies = openmc.Tallies()
     splits = list(full_fa_u.cells.values())
-    print(splits)
 
     # Instantiate flux Tally in moderator and fuel
     tally = openmc.Tally(name='energovidilenie')

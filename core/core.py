@@ -6,13 +6,15 @@ from math import sqrt
 from collections import Counter
 
 sys.path.append('../')
-from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line, batches, particles, inactive, numbers, n_dif
+from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line
+from constants import batches, particles, inactive, numbers, n_dif, g1, g2, g3, g4, g5, h1, h2, h3, h4, h5
 
 sys.path.append('../'+'fuel_assembly')
 from fuel_assembly import full_fa, water_full_fa
 
 sys.path.append('../'+'materials')
-from materials import g_hole, fuel, gaz, shell, coolant
+from materials import g_hole, fuel, gaz, shell, coolant, cr_shell1, boron_carbide1
+from materials import cr_shell2, boron_carbide2, cr_shell3, boron_carbide3, cr_shell4, boron_carbide4, cr_shell5, boron_carbide5
 
 def write_floats_to_file(filename, float_array, elements_per_line):
     with open(filename, 'w') as file:
@@ -22,19 +24,80 @@ def write_floats_to_file(filename, float_array, elements_per_line):
 
 if __name__ == '__main__':
 
-    mats = openmc.Materials((*g_hole, *fuel, *gaz, *shell, *coolant))
+    mats = openmc.Materials((*g_hole, *fuel, *gaz, *shell, *coolant,
+                              *cr_shell1, *cr_shell2, *cr_shell3, *cr_shell4, *cr_shell5,
+                             *boron_carbide1, *boron_carbide2, *boron_carbide3, *boron_carbide4, *boron_carbide5))
     mats.export_to_xml()
 
     fa_universe = []
     splits = []
     dif_fa_universe = []
+    flag = False
     for i in range(0, n_dif):
-        fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant)
-        dif_fa_universe.append(fa_)
-        splits += list(fa_.cells.values())
+        for j in range(0, len(g1)):
+            if i == g1[j]-1:
+                fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide1, cr_shell1, h1)
+                flag = True
+                dif_fa_universe.append(fa_)
+                splits += list(fa_.cells.values())
+                break
+        if flag:
+            flag = False
+            continue
+        else:
+            for j in range(0, len(g2)):
+                if i == g2[j]-1:
+                    fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide2, cr_shell2, h2)
+                    flag = True
+                    dif_fa_universe.append(fa_)
+                    splits += list(fa_.cells.values())
+                    break
+            if flag:
+                flag = False
+                continue
+            else:
+                for j in range(0, len(g3)):
+                    if i == g3[j]-1:
+                        fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide3, cr_shell3, h3)
+                        flag = True
+                        dif_fa_universe.append(fa_)
+                        splits += list(fa_.cells.values())
+                        break
+                if flag:
+                    flag = False
+                    continue
+                else:
+                    for j in range(0, len(g4)):
+                        if i == g4[j]-1:
+                            fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide4, cr_shell4, h4)
+                            flag = True
+                            dif_fa_universe.append(fa_)
+                            splits += list(fa_.cells.values())
+                            break
+                    if flag:
+                        flag = False
+                        continue
+                    else:
+                        for j in range(0, len(g5)):
+                            if i == g5[j]-1:
+                                fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide5, cr_shell5, h4)
+                                flag = True
+                                dif_fa_universe.append(fa_)
+                                splits += list(fa_.cells.values())
+                                break
+                        if flag:
+                            flag = False
+                            continue
+                        else:
+                            fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide5, cr_shell5, 0)
+                            dif_fa_universe.append(fa_)
+                            splits += list(fa_.cells.values())
+
+    print ('####################################')
+    print (len(dif_fa_universe))
+    print ('####################################')
     for i in range(0, n_fa):
         fa_universe.append(dif_fa_universe[numbers[i]-1])
-        #splits += list(fa_universe[i].cells.values())
 
 
     print("The core is divided into", len(splits), "elements.")
@@ -112,7 +175,7 @@ if __name__ == '__main__':
     p = openmc.Plot()
 
     #cross section drawing
-    p.origin=(0,0,100)
+    p.origin=(0, 0, core_height*1E2 - 5)
     p.filename = 'cluster_xy'
     p.basis = "xy"
     p.width = (350, 350)

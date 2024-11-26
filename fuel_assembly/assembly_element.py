@@ -1,6 +1,6 @@
 import openmc
 import math
-from constants import split_number, core_height, n_fa, rod_pitch, turnkey_size
+from constants import split_number, core_height, rod_pitch, turnkey_size
 
 #regions ID definition
 #2??????? - first 2
@@ -8,7 +8,7 @@ from constants import split_number, core_height, n_fa, rod_pitch, turnkey_size
 #2??___?? - fuel asssembly number
 #2?????__ - split number from bottom
 
-def fa_split(fa_num, layer_num, c_gaz, fuel, gaz, shell, coolant):
+def fa_split(fa_num, layer_num, c_gaz, fuel, gaz, shell, coolant, b4c, cr_steel, cr_key):
 
     central_hole_cylinder = openmc.ZCylinder(surface_id=int(2E7 + 1E5 + fa_num*1E2 + layer_num), r=0.117)
     fuel_cylinder = openmc.ZCylinder(surface_id=int(2E7 + 2E5 + fa_num*1E2 + layer_num), r=0.378)
@@ -35,14 +35,14 @@ def fa_split(fa_num, layer_num, c_gaz, fuel, gaz, shell, coolant):
         zdn.boundary_type="transmission"
         zup.boundary_type="transmission"
     #fuel rod
-    central_hole_region = -central_hole_cylinder & -zup & +zdn
-    fuel_region = +central_hole_cylinder & -fuel_cylinder & -zup & +zdn
-    gap_region = +fuel_cylinder & -gap_cylinder & -zup & +zdn
-    clad_region = +gap_cylinder & -clad_cylinder & -zup & +zdn
+    central_hole_region = -central_hole_cylinder
+    fuel_region = +central_hole_cylinder & -fuel_cylinder
+    gap_region = +fuel_cylinder & -gap_cylinder
+    clad_region = +gap_cylinder & -clad_cylinder
     #central tube
-    central_tube_region = -central_tube_out_cylinder & +central_tube_in_cylinder & -zup & +zdn
+    central_tube_region = -central_tube_out_cylinder & +central_tube_in_cylinder
     #control sistem channel
-    csc_region = -csc_out_cylinder & +csc_in_cylinder & -zup & +zdn
+    csc_region = -csc_out_cylinder & +csc_in_cylinder
 
     #cell ID definition
     #3??????? - first 3
@@ -71,13 +71,25 @@ def fa_split(fa_num, layer_num, c_gaz, fuel, gaz, shell, coolant):
     ct = openmc.Universe(universe_id = int(4E7 + 2E5 + fa_num*1E2 + layer_num), cells=[central_tube_in_cell, central_tube_cell, water2_cell])
 
     #create control sistem channel
-    csc_in_cell = openmc.Cell(cell_id = int(3E7 + 9E5 + fa_num*1E2 + layer_num), fill = coolant, region = -csc_in_cylinder)
-    csc_cell = openmc.Cell(cell_id = int(3E7 + 10E5 + fa_num*1E2 + layer_num),fill = shell, region = csc_region)
-    water3_cell = openmc.Cell(cell_id = int(3E7 + 11E5 + fa_num*1E2 + layer_num), fill = coolant, region = +csc_out_cylinder)
-    csc = openmc.Universe(universe_id = int(4E7 + 3E5 + fa_num*1E2 + layer_num), cells = [csc_in_cell, csc_cell, water3_cell])
+    csc_cell = openmc.Cell(cell_id = int(3E7 + 9E5 + fa_num*1E2 + layer_num),fill = shell, region = csc_region)
+    water3_cell = openmc.Cell(cell_id = int(3E7 + 10E5 + fa_num*1E2 + layer_num), fill = coolant, region = +csc_out_cylinder)
+    if cr_key == 0:
+        csc_in_cell = openmc.Cell(cell_id = int(3E7 + 11E5 + fa_num*1E2 + layer_num), fill = coolant, region = -csc_in_cylinder)
+        csc = openmc.Universe(universe_id = int(4E7 + 3E5 + fa_num*1E2 + layer_num), cells = [csc_in_cell, csc_cell, water3_cell])
+    else:
+        cr_in_cylinder = openmc.ZCylinder(surface_id=int(2E7 + 11E5 + fa_num*1E2 + layer_num), r=0.35)
+        cr_out_cylinder = openmc.ZCylinder(surface_id=int(2E7 + 12E5 + fa_num*1E2 + layer_num), r=0.41)
+        cr_shell = +cr_in_cylinder & -cr_out_cylinder
+        cr_coolant = +cr_out_cylinder & -csc_in_cylinder
+        cr_b4c_cell = openmc.Cell(cell_id = int(3E7 + 12E5 + fa_num*1E2 + layer_num), fill = b4c, region = -cr_in_cylinder)
+        cr_shell_cell = openmc.Cell(cell_id = int(3E7 + 13E5 + fa_num*1E2 + layer_num), fill = cr_steel, region = cr_shell)
+        cr_coolant_cell = openmc.Cell(cell_id = int(3E7 + 14E5 + fa_num*1E2 + layer_num), fill = coolant, region = cr_coolant)
+        csc = openmc.Universe(universe_id = int(4E7 + 3E5 + fa_num*1E2 + layer_num), cells = [cr_b4c_cell, cr_shell_cell, cr_coolant_cell, csc_cell, water3_cell])
+
+
 
     #coolant universe
-    all_water_out=openmc.Cell(cell_id = int(3E7 + 12E5 + fa_num*1E2 + layer_num), fill=coolant)
+    all_water_out=openmc.Cell(cell_id = int(3E7 + 15E5 + fa_num*1E2 + layer_num), fill=coolant)
     all_water_out_u=openmc.Universe(universe_id = int(4E7 + 4E5 + fa_num*1E2 + layer_num), cells=[all_water_out])
 
     #lattice ID definition
@@ -106,7 +118,7 @@ def fa_split(fa_num, layer_num, c_gaz, fuel, gaz, shell, coolant):
     lat.universes = [ring10, ring9, ring8, ring7, ring6, ring5, ring4, ring3, ring2, ring1, ring0]
 
 
-    assembly_cell = openmc.Cell(cell_id = int(3E7 + 13E5 + fa_num*1E2 + layer_num), name=f'cell_assembly_{fa_num}_layer_{layer_num}' )
+    assembly_cell = openmc.Cell(cell_id = int(3E7 + 16E5 + fa_num*1E2 + layer_num), name=f'cell_assembly_{fa_num}_layer_{layer_num}' )
     hex_prizm = openmc.model.HexagonalPrism(edge_length = turnkey_size/math.sqrt(3), orientation = 'x', boundary_type = "transmission")
     assembly_cell.region = -hex_prizm & -zup & +zdn
     assembly_cell.fill = lat
