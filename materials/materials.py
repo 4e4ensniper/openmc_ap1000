@@ -66,7 +66,7 @@ def cr_steel(i, j, num, temp):
 
 def b4c(i, j, num, temp):
     b4c_ = openmc.Material(material_id = int(1E7 + num * 1E5 + i*1E2 + j), name = "b4c_absorber")
-    b4c_.set_density('g/cm3', 2.52)
+    b4c_.set_density('g/cm3', 1.7)
     b4c_.add_element('B', 4.0, enrichment=80.0, enrichment_target='B10')
     b4c_.add_element('C', 1.0)
     b4c_.temperature = temp
@@ -78,6 +78,27 @@ def helium_(i, j, num, temp):
     helium.temperature = temp
     helium.set_density('g/cm3', 3.24e-3)
     return helium
+def uo2_fuel(i, j, num, temp, enrich):
+    fu = openmc.Material(material_id = int(1E7 + num * 1E5 + i*1E2 + j), name = f"UO2_{enrich}")
+    fu.add_element('U', 1.0, enrichment = enrich, enrichment_type='wo')
+    fu.add_element('O', 2.0)
+    fu.set_density('g/cm3', 10.48)
+    fu.temperature = temp
+    return fu
+def uo2_gdo2(i, j, num, temp, enrich, gdo2_pt):
+    uo2 = uo2_fuel(i, j, num, temp, enrich)
+    gdo2 = openmc.Material(material_id = int(1E7 + (num + 1) * 1E5 + i*1E2 + j), name = 'GdO2')
+    gdo2.add_element('Gd', 2.0)
+    gdo2.add_element('O', 3.0)
+    gdo2.set_density('g/cm3', 7.407)
+    gdo2_uo2 = openmc.Material.mix_materials([uo2, gdo2], [1-gdo2_pt, gdo2_pt], 'wo')
+    gdo2_uo2.id = int(1E7 + (num + 2) * 1E5 + i*1E2 + j)
+    gdo2_uo2.name = 'GdO2_UO2'
+    gdo2_uo2.temperature = temp
+    return gdo2_uo2
+
+
+
 density_hc = []
 fuel_temp_eff = []
 helium_temp = []
@@ -112,13 +133,7 @@ for i in range(0, n_dif):
         g_hole.append(helium_(i, j, 1, hole_helium_temp[j] + 273.15))
 
         #fuel definition
-        fu = openmc.Material(material_id = int(1E7 + 2E5 + i*1E2 + j), name = "UO2")
-        fu.add_element('U', 1.0, enrichment = 4.95, enrichment_type='wo')
-        fu.add_element('O', 2.0)
-        fu.set_density('g/cm3', 10.48)
-        fu.temperature = fuel_temp_eff[j] + 273.15
-        fu.volume = fr_number*pi*(r_fuel*r_fuel - r_hole*r_hole)*core_height*1E2/split_number#объем топлива в одном элементе разбиения ТВC по высоте
-        fu.depletable = True
+        fu = uo2_fuel(i, j, 2, fuel_temp_eff[j] + 273.15, 4.95)
         fuel.append(fu)
 
         #helium definition in gap

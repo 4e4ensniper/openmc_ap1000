@@ -10,7 +10,7 @@ sys.path.append('../'+'materials')
 from materials import g_hole, fuel, gaz, shell, coolant, cr_shell1, boron_carbide1
 from assembly_element import fa_split
 
-def full_fa(fa_num, c_gaz_list, fuel_list, gaz_list, shell_list, hc_list, b4c_list, cr_steel_list, cr_depth):
+def full_fa(fa_num, c_gaz_list, fuel_list, gaz_list, shell_list, hc_list, b4c_list, cr_steel_list, cr_depth, grey_f_list, fa_dict, name):
     fa_universe_return = openmc.Universe(universe_id = int(4E7 + 5E5 + fa_num*1E2 + split_number), name=f'fa_universe_{fa_num}')
     for i in range (0, split_number - cr_depth):
         num = fa_num*split_number + i

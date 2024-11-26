@@ -2,6 +2,7 @@
   "python.analysis.extraPaths": [
     "./",
     "./fuel_assembly",
+    "./materials"
   ],
   "python.languageServer": "Pylance"
 }
