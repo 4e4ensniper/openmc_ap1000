@@ -8,7 +8,7 @@ rod_pitch = 1.275 #sm
 turnkey_size = 23.4 #sm
 core_barrel_in_r = 339.72/2 #sm
 core_barrel_out_r = 349.88/2 #sm
-b_conc = 0 #g/kg
+b_conc = 16 #g/kg
 #The number of fuel assemblies per row, starting from the bottom of the core map.
 line = [4, 7, 10, 11, 12, 13, 12, 13, 12, 13, 12, 11, 10, 7, 4]
 #Path to the location of files with temperature distributions.
@@ -34,7 +34,7 @@ g1 = [9]
 g2 = [5]
 g3 = [12]
 g4 = [7, 16]
-g5 = [18, 13]
+g5 = [18, 13, 8]
 
 h1 = 3
 h2 = 3
