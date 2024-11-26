@@ -7,12 +7,12 @@ import sys
 import openmc.model
 sys.path.append('../')
 from constants import split_number, core_height, r_fuel, r_hole, fr_number, n_fa, csv_path, n_dif
-from constants import g1, g2, g3, g4, g5, h1, h2, h3, h4, h5, b_ppm
+from constants import g1, g2, g3, g4, g5, h1, h2, h3, h4, h5, b_conc
 #materials specifications
 #we have 1 material complex for each split elemen
-
 #function for determining the mean values ​​of quantities
 #from their piecewise distributions
+eps = 0.0001
 def average_value(n, filename, length):
     z_coordinates_in = []
     f_z_in = []
@@ -66,8 +66,8 @@ def cr_steel(i, j, num, temp):
 
 def b4c(i, j, num, temp):
     b4c_ = openmc.Material(material_id = int(1E7 + num * 1E5 + i*1E2 + j), name = "b4c_absorber")
-    b4c_.set_density('g/cm3', 1.7)
-    b4c_.add_element('B', 4.0, enrichment=80.0, enrichment_target='B10',  enrichment_type='wo')
+    b4c_.set_density('g/cm3', 2.52)
+    b4c_.add_element('B', 4.0, enrichment=80.0, enrichment_target='B10')
     b4c_.add_element('C', 1.0)
     b4c_.temperature = temp
     return b4c_
@@ -133,19 +133,19 @@ for i in range(0, n_dif):
         shell.append(shell_alloy)
 
         #coolant definition
-
-        water = openmc.model.borated_water(boron_ppm = b_ppm, density=density_hc[j]*1E-3)
-        water.id = int(1E7 + 5E5 + i*1E2 + j)
-        water.temperature = hc_temp[j] + 273.15
-        water.name = 'H2O'
-        '''
-        water = openmc.Material(material_id = int(1E7 + 5E5 + i*1E2 + j), name = "H2O")
-        water.add_element('H', 2.0)
-        water.add_element('O', 1.0)
-        water.set_density('g/cm3', density_hc[j]*1E-3)
-        water.temperature = hc_temp[j] + 273.15
-        water.add_s_alpha_beta('c_H_in_H2O')
-        '''
+        if b_conc > eps:
+            b_ppm = 1/(1 + 61.83/18 * (1/(b_conc*1E-3)-1)) * 1E6
+            water = openmc.model.borated_water(boron_ppm = b_ppm, density=density_hc[j]*1E-3)
+            water.id = int(1E7 + 5E5 + i*1E2 + j)
+            water.temperature = hc_temp[j] + 273.15
+            water.name = 'H2O'
+        else:
+            water = openmc.Material(material_id = int(1E7 + 5E5 + i*1E2 + j), name = "H2O")
+            water.add_element('H', 2.0)
+            water.add_element('O', 1.0)
+            water.set_density('g/cm3', density_hc[j]*1E-3)
+            water.temperature = hc_temp[j] + 273.15
+            water.add_s_alpha_beta('c_H_in_H2O')
         coolant.append(water)
 
 cr_shell1 = []
@@ -183,20 +183,19 @@ for i in range(0, len(g5)):
         cr_shell5.append(cr_steel(g5[i], j, 6, hc_temp[split_number - h5 + j] + 273.15))
         boron_carbide5.append(b4c(g5[i], j, 7, hc_temp[split_number - h5 + j] + 273.15))
 
-
-water = openmc.model.borated_water(boron_ppm = b_ppm, density=sum(density_hc)*1E-3/len(density_hc))
-water.id = int(1E7 + 8E5 + n_dif*1E2 + split_number)
-water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
-water.name = 'H2O'
-print(water)
-'''
-water = openmc.Material(material_id = int(1E7 + 8E5 + n_dif*1E2 + split_number), name="H2O")
-water.add_element('H', 2.0)
-water.add_element('O', 1.0)
-water.set_density('g/cm3', sum(density_hc)*1E-3/len(density_hc))
-water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
-water.add_s_alpha_beta('c_H_in_H2O')
-'''
+if b_conc > eps:
+    b_ppm = 1/(1 + 61.83/18 * (1/(b_conc*1E-3)-1)) * 1E6
+    water = openmc.model.borated_water(boron_ppm = b_ppm, density=sum(density_hc)*1E-3/len(density_hc))
+    water.id = int(1E7 + 8E5 + n_dif*1E2 + split_number)
+    water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
+    water.name = 'H2O'
+else:
+    water = openmc.Material(material_id = int(1E7 + 8E5 + n_dif*1E2 + split_number), name="H2O")
+    water.add_element('H', 2.0)
+    water.add_element('O', 1.0)
+    water.set_density('g/cm3', sum(density_hc)*1E-3/len(density_hc))
+    water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
+    water.add_s_alpha_beta('c_H_in_H2O')
 coolant.append(water)
 
 #reactor vessel steel SA-508
