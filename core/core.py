@@ -80,7 +80,7 @@ if __name__ == '__main__':
                     else:
                         for j in range(0, len(g5)):
                             if i == g5[j]-1:
-                                fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide5, cr_shell5, h4)
+                                fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide5, cr_shell5, h5)
                                 flag = True
                                 dif_fa_universe.append(fa_)
                                 splits += list(fa_.cells.values())
@@ -93,9 +93,6 @@ if __name__ == '__main__':
                             dif_fa_universe.append(fa_)
                             splits += list(fa_.cells.values())
 
-    print ('####################################')
-    print (len(dif_fa_universe))
-    print ('####################################')
     for i in range(0, n_fa):
         fa_universe.append(dif_fa_universe[numbers[i]-1])
 

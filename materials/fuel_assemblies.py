@@ -13,3 +13,9 @@ fa_types = [
     }
 
 ]
+
+def find_name(name, fas):
+    for fa in fas:
+        if fa["name"] == name:
+            return fa
+    return None
