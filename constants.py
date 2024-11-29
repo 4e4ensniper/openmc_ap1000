@@ -1,4 +1,4 @@
-split_number = 3
+split_number = 30
 core_height = 3.53 #m
 n_fa = 151
 r_fuel = 7.57/20 #sm
@@ -8,7 +8,7 @@ rod_pitch = 1.275 #sm
 turnkey_size = 23.4 #sm
 core_barrel_in_r = 339.72/2 #sm
 core_barrel_out_r = 349.88/2 #sm
-b_conc = 16 #g/kg
+b_conc = 4 #g/kg
 #The number of fuel assemblies per row, starting from the bottom of the core map.
 line = [4, 7, 10, 11, 12, 13, 12, 13, 12, 13, 12, 11, 10, 7, 4]
 #Path to the location of files with temperature distributions.
@@ -42,11 +42,11 @@ g3 = [12]
 g4 = [7, 16]
 g5 = [18, 13, 8]
 
-h1 = 3
-h2 = 3
-h3 = 3
-h4 = 3
-h5 = 3
+h1 = 0
+h2 = 0
+h3 = 0
+h4 = 0
+h5 = 0
 
 '''
 half_numbers = [1,  2,  3,  4,

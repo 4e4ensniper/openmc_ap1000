@@ -93,7 +93,7 @@ def fa_split(fa_num, layer_num, c_gaz, fuel, gaz, shell, coolant, b4c, cr_steel,
         cr_b4c_cell = openmc.Cell(cell_id = int(3E7 + 17E5 + fa_num*1E2 + layer_num), fill = b4c, region = -cr_in_cylinder)
         cr_shell_cell = openmc.Cell(cell_id = int(3E7 + 18E5 + fa_num*1E2 + layer_num), fill = cr_steel, region = cr_shell)
         cr_coolant_cell = openmc.Cell(cell_id = int(3E7 + 19E5 + fa_num*1E2 + layer_num), fill = coolant, region = cr_coolant)
-        csc = openmc.Universe(universe_id = int(4E7 + 3E5 + fa_num*1E2 + layer_num), cells = [cr_b4c_cell, cr_shell_cell, cr_coolant_cell, csc_cell, water3_cell])
+        csc = openmc.Universe(universe_id = int(4E7 + 4E5 + fa_num*1E2 + layer_num), cells = [cr_b4c_cell, cr_shell_cell, cr_coolant_cell, csc_cell, water3_cell])
 
 
 

@@ -37,11 +37,19 @@ if __name__ == '__main__':
     dif_fa_universe = []
     flag = False
     mat_num = 0
+    fake_grey = []
+    for i in range(0, split_number):
+        fake_grey.append(None)
     for i in range(0, len(dif_fu_cart)):
         dict_fa = find_name(dif_fu_cart[i], fa_types)
+        if dict_fa["grey_enrichment"] == 0:
+            mat_grey = fake_grey
+        else:
+            mat_grey = grey_rods[mat_num]
+            mat_num += 1
         for j in range(0, len(g1)):
             if i == g1[j]-1:
-                fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide1, cr_shell1, h1, grey_rods[i], dict_fa["grey_pos"])
+                fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide1, cr_shell1, h1, mat_grey, dict_fa["grey_pos"])
                 flag = True
                 dif_fa_universe.append(fa_)
                 splits += list(fa_.cells.values())
@@ -52,7 +60,7 @@ if __name__ == '__main__':
         else:
             for j in range(0, len(g2)):
                 if i == g2[j]-1:
-                    fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide2, cr_shell2, h2, grey_rods[i], dict_fa["grey_pos"])
+                    fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide2, cr_shell2, h2, mat_grey, dict_fa["grey_pos"])
                     flag = True
                     dif_fa_universe.append(fa_)
                     splits += list(fa_.cells.values())
@@ -63,7 +71,7 @@ if __name__ == '__main__':
             else:
                 for j in range(0, len(g3)):
                     if i == g3[j]-1:
-                        fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide3, cr_shell3, h3, grey_rods[i], dict_fa["grey_pos"])
+                        fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide3, cr_shell3, h3, mat_grey, dict_fa["grey_pos"])
                         flag = True
                         dif_fa_universe.append(fa_)
                         splits += list(fa_.cells.values())
@@ -74,7 +82,7 @@ if __name__ == '__main__':
                 else:
                     for j in range(0, len(g4)):
                         if i == g4[j]-1:
-                            fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide4, cr_shell4, h4, grey_rods[i], dict_fa["grey_pos"])
+                            fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide4, cr_shell4, h4, mat_grey, dict_fa["grey_pos"])
                             flag = True
                             dif_fa_universe.append(fa_)
                             splits += list(fa_.cells.values())
@@ -85,7 +93,7 @@ if __name__ == '__main__':
                     else:
                         for j in range(0, len(g5)):
                             if i == g5[j]-1:
-                                fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide5, cr_shell5, h5, grey_rods[i], dict_fa["grey_pos"])
+                                fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide5, cr_shell5, h5, mat_grey, dict_fa["grey_pos"])
                                 flag = True
                                 dif_fa_universe.append(fa_)
                                 splits += list(fa_.cells.values())
@@ -94,13 +102,12 @@ if __name__ == '__main__':
                             flag = False
                             continue
                         else:
-                            fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide5, cr_shell5, 0, grey_rods[i], dict_fa["grey_pos"])
+                            fa_ = full_fa(i, g_hole, fuel, gaz, shell, coolant, boron_carbide5, cr_shell5, 0, mat_grey, dict_fa["grey_pos"])
                             dif_fa_universe.append(fa_)
                             splits += list(fa_.cells.values())
 
     for i in range(0, n_fa):
         fa_universe.append(dif_fa_universe[numbers[i]-1])
-
 
     print("The core is divided into", len(splits), "elements.")
     fa_universe.append(water_full_fa(coolant[-1]))
@@ -181,7 +188,7 @@ if __name__ == '__main__':
     p.filename = 'cluster_xy'
     p.basis = "xy"
     p.width = (350, 350)
-    p.pixels = (2000, 2000)
+    p.pixels = (6000, 6000)
     p.color_by = 'material'
     plots = openmc.Plots([p])
     plots.export_to_xml()
@@ -193,7 +200,7 @@ if __name__ == '__main__':
     p.filename = 'cluster_yz'
     p.basis = "yz"
     p.width = (500, 500)
-    p.pixels = (1000, 1000)
+    p.pixels = (5000, 5000)
     p.color_by = 'material'
     plots = openmc.Plots([p])
     plots.export_to_xml()

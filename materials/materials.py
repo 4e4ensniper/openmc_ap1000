@@ -167,8 +167,8 @@ for i in range(0, len(dif_fu_cart)):
             water.temperature = hc_temp[j] + 273.15
             water.add_s_alpha_beta('c_H_in_H2O')
         coolant.append(water)
-    grey_rods.append(grey_rod)
-
+    if type["gdo2_wo"] != 0:
+        grey_rods.append(grey_rod)
 cr_shell1 = []
 boron_carbide1 = []
 
