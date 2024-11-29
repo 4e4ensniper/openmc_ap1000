@@ -1,4 +1,4 @@
-split_number = 4
+split_number = 3
 core_height = 3.53 #m
 n_fa = 151
 r_fuel = 7.57/20 #sm
@@ -18,9 +18,6 @@ batches = 200
 inactive = 10
 particles = 10000
 #Number of different fuel assemblies defined as different universes
-n_dif = 18
-dif_fu_cart = ['Z40D2']
-'''
 dif_fu_cart = ['Z44B2', 'Z44B2',
                'Z40', 'Z24', 'Z33Z2', 'Z24',
                'Z24', 'Z13', 'Z13',
@@ -28,8 +25,7 @@ dif_fu_cart = ['Z44B2', 'Z44B2',
                'Z24', 'Z13',
                'Z24', 'Z33Z9',
                'Z13',
-               'Z3Z2']
-'''
+               'Z33Z2']
 #An array that contains the numbers of the various universes of fuel assemblies on the cartogram.
 half_numbers = [1, 2, 2, 1,
                 3, 4, 5, 6, 5, 4, 3,
@@ -63,6 +59,6 @@ half_numbers = [1,  2,  3,  4,
            5, 11, 16, 20, 23, 25] #Half of the fuel assemblies number on the cartogram without the central cassette
 '''
 r_half_numbers = list(reversed(half_numbers))
-half_numbers.append(n_dif)
+half_numbers.append(len(dif_fu_cart))
 numbers = half_numbers + r_half_numbers
 

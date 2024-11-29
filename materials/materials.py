@@ -7,7 +7,7 @@ import openmc.model
 from fuel_assemblies import fa_types, find_name
 
 sys.path.append('../')
-from constants import split_number, core_height, csv_path, n_dif
+from constants import split_number, core_height, csv_path
 from constants import g1, g2, g3, g4, g5, h1, h2, h3, h4, h5, b_conc, dif_fu_cart
 
 #materials specifications
@@ -207,11 +207,11 @@ for i in range(0, len(g5)):
 if b_conc > eps:
     b_ppm = 1/(1 + 61.83/18 * (1/(b_conc*1E-3)-1)) * 1E6
     water = openmc.model.borated_water(boron_ppm = b_ppm, density=sum(density_hc)*1E-3/len(density_hc))
-    water.id = int(1E7 + 12E5 + n_dif*1E2 + split_number)
+    water.id = int(1E7 + 12E5 + len(dif_fu_cart)*1E2 + split_number)
     water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
     water.name = 'H2O'
 else:
-    water = openmc.Material(material_id = int(1E7 + 12E5 + n_dif*1E2 + split_number), name="H2O")
+    water = openmc.Material(material_id = int(1E7 + 12E5 + len(dif_fu_cart)*1E2 + split_number), name="H2O")
     water.add_element('H', 2.0)
     water.add_element('O', 1.0)
     water.set_density('g/cm3', sum(density_hc)*1E-3/len(density_hc))
@@ -220,7 +220,7 @@ else:
 coolant.append(water)
 
 #reactor vessel steel SA-508
-steel_all = openmc.Material(material_id = int(1E7 + 13E5 + n_dif*1E2 + split_number),name="SA508")
+steel_all = openmc.Material(material_id = int(1E7 + 13E5 + len(dif_fu_cart)*1E2 + split_number),name="SA508")
 steel_all.add_element('C', 0.206,'wo')
 steel_all.add_element('Si', 0.321, 'wo')
 steel_all.add_element('Mn', 1.280, 'wo')

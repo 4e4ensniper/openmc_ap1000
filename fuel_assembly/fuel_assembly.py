@@ -39,7 +39,7 @@ def water_full_fa(coolant):
 if __name__ == '__main__':
     sys.path.append('../'+'materials')
     from fuel_assemblies import fa_types, find_name
-    fa = find_name("Z40D2", fa_types)
+    fa = find_name("Z49B9", fa_types)
     grey_array = [element for sublist in grey_rods for element in sublist]
     mats = openmc.Materials((*g_hole, *fuel, *gaz, *shell, *coolant, *cr_shell1, *boron_carbide1, *grey_array))
     mats.export_to_xml()
