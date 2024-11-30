@@ -1,4 +1,4 @@
-split_number = 3
+split_number = 4
 core_height = 3.53 #m
 n_fa = 151
 r_fuel = 7.57/20 #sm
@@ -8,7 +8,7 @@ rod_pitch = 1.275 #sm
 turnkey_size = 23.4 #sm
 core_barrel_in_r = 339.72/2 #sm
 core_barrel_out_r = 349.88/2 #sm
-b_conc = 16 #g/kg
+b_conc = 4 #g/kg
 #The number of fuel assemblies per row, starting from the bottom of the core map.
 line = [4, 7, 10, 11, 12, 13, 12, 13, 12, 13, 12, 11, 10, 7, 4]
 #Path to the location of files with temperature distributions.
@@ -16,11 +16,17 @@ csv_path = "/home/ubuntu24/Desktop/openmc_ap1000/materials/temperature_distribut
 #Calculation parameters
 batches = 200
 inactive = 10
-particles = 10000
+particles = 100000
 #Number of different fuel assemblies defined as different universes
-n_dif = 18
+dif_fu_cart = ['Z49A2', 'Z49A2',
+               'Z40', 'Z24', 'Z33Z2', 'Z24',
+               'Z24', 'Z33Z9', 'Z13',
+               'Z13', 'Z33Z9', 'Z24',
+               'Z24', 'Z13',
+               'Z33Z2', 'Z24',
+               'Z13',
+               'Z33Z2']
 #An array that contains the numbers of the various universes of fuel assemblies on the cartogram.
-
 half_numbers = [1, 2, 2, 1,
                 3, 4, 5, 6, 5, 4, 3,
                 1, 4, 7, 8, 9, 9, 8, 7, 4, 1,
@@ -36,11 +42,11 @@ g3 = [12]
 g4 = [7, 16]
 g5 = [18, 13, 8]
 
-h1 = 3
-h2 = 3
-h3 = 3
-h4 = 3
-h5 = 3
+h1 = 0
+h2 = 0
+h3 = 0
+h4 = 0
+h5 = 0
 
 '''
 half_numbers = [1,  2,  3,  4,
@@ -53,5 +59,6 @@ half_numbers = [1,  2,  3,  4,
            5, 11, 16, 20, 23, 25] #Half of the fuel assemblies number on the cartogram without the central cassette
 '''
 r_half_numbers = list(reversed(half_numbers))
-half_numbers.append(n_dif)
+half_numbers.append(len(dif_fu_cart))
 numbers = half_numbers + r_half_numbers
+
