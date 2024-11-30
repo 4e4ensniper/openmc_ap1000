@@ -258,9 +258,9 @@ if __name__ == '__main__':
         for j in range(0, split_number):
             kq.append(kq_[(numbers[i] - 1) * split_number + j])
 
-    write_floats_to_file("kq_full.txt", kq, split_number)
+    write_floats_to_file("kv.txt", kq, split_number)
 
-    #Kr calculation
+    #Kq calculation
     kr = []
     for i in range(0, n_fa):
         sum_ = 0
@@ -277,7 +277,7 @@ if __name__ == '__main__':
             xy.append((x,y))
         y += 1.5*turnkey_size/sqrt(3)
     combined_array = [(t[0], t[1], n) for t, n in zip(xy, kr)]
-    np.savetxt(f"kr.txt", combined_array, delimiter="\t", fmt = "%.6f")
+    np.savetxt(f"kq.txt", combined_array, delimiter="\t", fmt = "%.6f")
 
     #Kz calculation
     kz = []

@@ -68,7 +68,7 @@ def cr_steel(i, j, num, temp):
 
 def b4c(i, j, num, temp):
     b4c_ = openmc.Material(material_id = int(1E7 + num * 1E5 + i*1E2 + j), name = "b4c_absorber")
-    b4c_.set_density('g/cm3', 1.7)
+    b4c_.set_density('g/cm3', 1.8)
     b4c_.add_element('B', 4.0, enrichment=80.0, enrichment_target='B10')
     b4c_.add_element('C', 1.0)
     b4c_.temperature = temp
