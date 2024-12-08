@@ -121,6 +121,7 @@ gaz = []
 shell = []
 coolant = []
 g_hole = []
+grey_rods = []
 
 if treton_input_files == 0:
     density_hc = []
@@ -135,105 +136,8 @@ if treton_input_files == 0:
     #np.savetxt(f"fuel_temp_eff_av.csv", fuel_temp_eff, delimiter=",", fmt='%.15f')
     helium_temp = average_value(split_number, csv_path + "gaz_temperature_av(z).csv", core_height)
     shell_temp = average_value(split_number, csv_path + "shell_temperature_av_av(z).csv", core_height)
-    hc_temp = average_value(split_number, csv_path + "T_hc_av(z).csv", core_height)
+    hc_temp_arr = average_value(split_number, csv_path + "T_hc_av(z).csv", core_height)
     hole_helium_temp = average_value(split_number, csv_path + "fuel_temperature_max_av(z).csv", core_height)
-
-    #materials ID definition
-    #1??????? - first 1
-    #1__????? - material number
-    #1??___?? - fuel asssembly number
-    #1?????__ - split number from bottom
-    grey_rods = []
-    for i in range(0, len(dif_fu_cart)):
-        type = find_name(dif_fu_cart[i], fa_types)
-        grey_rod = []
-        for j in range(0, split_number):
-
-            #helium definition in central hole
-            g_hole.append(helium_(i, j, 1, hole_helium_temp[j] + 273.15))
-
-            #fuel definition
-            fu = uo2_fuel(i, j, 2, fuel_temp_eff[j] + 273.15, type["enrichment"])
-            fuel.append(fu)
-            if type["gdo2_wo"] != 0:
-                grey = uo2_gdo2(i, j, 3, fuel_temp_eff[j] + 273.15, type["grey_enrichment"], type["gdo2_wo"])
-                grey_rod.append(grey)
-            #helium definition in gap
-            gaz.append(helium_(i, j, 6, helium_temp[j] + 273.15))
-            #shell definition
-            shell_alloy = openmc.Material(material_id = int(1E7 + 7E5 + i*1E2 + j), name = "110")
-            shell_alloy.add_element('Zr', 0.99, percent_type='wo')
-            shell_alloy.add_element('Nb',0.1, percent_type='wo')
-            shell_alloy.temperature = shell_temp[j] + 273.15
-            shell_alloy.set_density('g/cm3',6.5)
-            shell.append(shell_alloy)
-
-            #coolant definition
-            if b_conc > eps:
-                b_ppm = 1/(1 + 61.83/18 * (1/(b_conc*1E-3)-1)) * 1E6
-                water = openmc.model.borated_water(boron_ppm = b_ppm, density=density_hc[j]*1E-3)
-                water.id = int(1E7 + 8E5 + i*1E2 + j)
-                water.temperature = hc_temp[j] + 273.15
-                water.name = 'H2O'
-            else:
-                water = openmc.Material(material_id = int(1E7 + 9E5 + i*1E2 + j), name = "H2O")
-                water.add_element('H', 2.0)
-                water.add_element('O', 1.0)
-                water.set_density('g/cm3', density_hc[j]*1E-3)
-                water.temperature = hc_temp[j] + 273.15
-                water.add_s_alpha_beta('c_H_in_H2O')
-            coolant.append(water)
-        if type["gdo2_wo"] != 0:
-            grey_rods.append(grey_rod)
-    cr_shell1 = []
-    boron_carbide1 = []
-
-    cr_shell2 = []
-    boron_carbide2 = []
-
-    cr_shell3 = []
-    boron_carbide3= []
-
-    cr_shell4 = []
-    boron_carbide4 = []
-
-    cr_shell5 = []
-    boron_carbide5 = []
-    for i in range(0, len(g1)):
-        for j in range(0, h1):
-            cr_shell1.append(cr_steel(g1[i], j, 10, hc_temp[split_number - h1 + j] + 273.15))
-            boron_carbide1.append(b4c(g1[i], j, 11, hc_temp[split_number - h1 + j] + 273.15))
-    for i in range(0, len(g2)):
-        for j in range(0, h2):
-            cr_shell2.append(cr_steel(g2[i], j, 10, hc_temp[split_number - h2 + j] + 273.15))
-            boron_carbide2.append(b4c(g2[i], j, 11, hc_temp[split_number - h2 + j] + 273.15))
-    for i in range(0, len(g3)):
-        for j in range(0, h3):
-            cr_shell3.append(cr_steel(g3[i], j, 10, hc_temp[split_number - h3 + j] + 273.15))
-            boron_carbide3.append(b4c(g3[i], j, 11, hc_temp[split_number - h3 + j] + 273.15))
-    for i in range(0, len(g4)):
-        for j in range(0, h4):
-            cr_shell4.append(cr_steel(g4[i], j, 10, hc_temp[split_number - h4 + j] + 273.15))
-            boron_carbide4.append(b4c(g4[i], j, 11, hc_temp[split_number - h4 + j] + 273.15))
-    for i in range(0, len(g5)):
-        for j in range(0, h5):
-            cr_shell5.append(cr_steel(g5[i], j, 10, hc_temp[split_number - h5 + j] + 273.15))
-            boron_carbide5.append(b4c(g5[i], j, 11, hc_temp[split_number - h5 + j] + 273.15))
-
-    if b_conc > eps:
-        b_ppm = 1/(1 + 61.83/18 * (1/(b_conc*1E-3)-1)) * 1E6
-        water = openmc.model.borated_water(boron_ppm = b_ppm, density=sum(density_hc)*1E-3/len(density_hc))
-        water.id = int(1E7 + 12E5 + len(dif_fu_cart)*1E2 + split_number)
-        water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
-        water.name = 'H2O'
-    else:
-        water = openmc.Material(material_id = int(1E7 + 12E5 + len(dif_fu_cart)*1E2 + split_number), name="H2O")
-        water.add_element('H', 2.0)
-        water.add_element('O', 1.0)
-        water.set_density('g/cm3', sum(density_hc)*1E-3/len(density_hc))
-        water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
-        water.add_s_alpha_beta('c_H_in_H2O')
-    coolant.append(water)
 else:
     need_lines = dif_pos(numbers)
     shell_res = (log(r_fr/(r_fr - delta_shell)))/(2*pi*l_shell)
@@ -249,31 +153,40 @@ else:
         hc_lines = file.readlines()
     with open(treton_files_path + 'Q6.txt', 'r') as file:
         q_lines = file.readlines()
-    for i in range(0, len(dif_fu_cart)):
-        out_shell_temp = []
-        density_hc = []
-        hc_temp_arr = []
+
+    #materials ID definition
+    #1??????? - first 1
+    #1__????? - material number
+    #1??___?? - fuel asssembly number
+    #1?????__ - split number from bottom
+
+for i in range(0, len(dif_fu_cart)):
+    if treton_input_files == 1:
+        out_shell_temp_line = []
+        density_hc_line = []
+        hc_temp_line = []
         q_line = []
         out_shell_temp_ = shell_lines[need_lines[i]].strip().split()
-        out_shell_temp.extend([float(temp) for temp in out_shell_temp_[2:]])
+        out_shell_temp_line.extend([float(temp) for temp in out_shell_temp_[2:]])
 
         density_hc_ = ro_lines[need_lines[i]].strip().split()
-        density_hc.extend([float(dens) for dens in density_hc_[2:]])
+        density_hc_line.extend([float(dens) for dens in density_hc_[2:]])
 
         hc_temp_arr_ = hc_lines[need_lines[i]].strip().split()
-        hc_temp_arr.extend([float(temp) for temp in hc_temp_arr_[2:]])
+        hc_temp_line.extend([float(temp) for temp in hc_temp_arr_[2:]])
 
         q_line_ = q_lines[need_lines[i]].strip().split()
         q_line.extend(float(q) for q in q_line_)
 
-        type = find_name(dif_fu_cart[i], fa_types)
-
-        for j in range(0, split_number):
+    type = find_name(dif_fu_cart[i], fa_types)
+    grey_rod = []
+    for j in range(0, split_number):
+        if treton_input_files == 1:
             q_l = q_line[j] * split_number/(fr_number * core_height)
-            central_gaz_temp = out_shell_temp[j] + q_l * (shell_res + gaz_res + fuel_res)
-            out_fuel_temp = out_shell_temp[j] + q_l * (shell_res + gaz_res)
-            in_shell_temp = out_shell_temp[j] + q_l * shell_res
-            shell_temp_av = 1/delta_shell*(in_shell_temp - out_shell_temp[j])/log(1-delta_shell/r_fr)*(r_fr-delta_shell)*(r_fr/(r_fr-delta_shell)*log(r_fr/(r_fr-delta_shell))-r_fr/(r_fr-delta_shell)+1)+in_shell_temp
+            central_gaz_temp = out_shell_temp_line[j] + q_l * (shell_res + gaz_res + fuel_res)
+            out_fuel_temp = out_shell_temp_line[j] + q_l * (shell_res + gaz_res)
+            in_shell_temp = out_shell_temp_line[j] + q_l * shell_res
+            shell_temp_av = 1/delta_shell*(in_shell_temp - out_shell_temp_line[j])/log(1-delta_shell/r_fr)*(r_fr-delta_shell)*(r_fr/(r_fr-delta_shell)*log(r_fr/(r_fr-delta_shell))-r_fr/(r_fr-delta_shell)+1)+in_shell_temp
             gaz_gap_temp_av = 1/delta_gap*(out_fuel_temp - in_shell_temp)/log(r_fuel/(r_fuel+delta_gap))*r_fuel*((r_fuel+delta_gap)/r_fuel*log((r_fuel+delta_gap)/r_fuel)-(r_fuel+delta_gap)/r_fuel+1)+out_fuel_temp
 
             b_ = q_l/(4*pi*l_fuel*(r_fuel*r_fuel - r_hole*r_hole))
@@ -282,9 +195,106 @@ else:
                                     - sqrt(b_)*r_hole/2*sqrt(a_ - b_*r_hole*r_hole) - a_/2 * asin(sqrt(b_/a_)*r_hole))
             t_eff_d = 1/sqrt(b_)*(asin(sqrt(b_/a_)*r_fuel) - asin(sqrt(b_/a_)*r_hole))
             t_eff = t_eff_n/t_eff_d
-            print(t_eff)
-        print('________')
-        grey_rod = []
+
+            hc_density = density_hc_line[j]
+            hc_temp = hc_temp_line[j]
+
+        else:
+            central_gaz_temp = hole_helium_temp[j]
+            shell_temp_av = shell_temp[j]
+            gaz_gap_temp_av = helium_temp[j]
+            t_eff = fuel_temp_eff[j]
+            hc_density = density_hc[j]
+            hc_temp = hc_temp_arr[j]
+
+        #helium definition in central hole
+        g_hole.append(helium_(i, j, 1, central_gaz_temp + 273.15))
+
+        #fuel definition
+        fu = uo2_fuel(i, j, 2, t_eff + 273.15, type["enrichment"])
+        fuel.append(fu)
+        if type["gdo2_wo"] != 0:
+            grey = uo2_gdo2(i, j, 3, t_eff + 273.15, type["grey_enrichment"], type["gdo2_wo"])
+            grey_rod.append(grey)
+
+        #helium definition in gap
+        gaz.append(helium_(i, j, 6, gaz_gap_temp_av + 273.15))
+        #shell definition
+        shell_alloy = openmc.Material(material_id = int(1E7 + 7E5 + i*1E2 + j), name = "110")
+        shell_alloy.add_element('Zr', 0.99, percent_type='wo')
+        shell_alloy.add_element('Nb',0.1, percent_type='wo')
+        shell_alloy.temperature = shell_temp_av + 273.15
+        shell_alloy.set_density('g/cm3',6.5)
+        shell.append(shell_alloy)
+
+        #coolant definition
+        if b_conc > eps:
+            b_ppm = 1/(1 + 61.83/18 * (1/(b_conc*1E-3)-1)) * 1E6
+            water = openmc.model.borated_water(boron_ppm = b_ppm, density=hc_density*1E-3)
+            water.id = int(1E7 + 8E5 + i*1E2 + j)
+            water.temperature = hc_temp + 273.15
+            water.name = 'H2O'
+        else:
+            water = openmc.Material(material_id = int(1E7 + 9E5 + i*1E2 + j), name = "H2O")
+            water.add_element('H', 2.0)
+            water.add_element('O', 1.0)
+            water.set_density('g/cm3', hc_density*1E-3)
+            water.temperature = hc_temp + 273.15
+            water.add_s_alpha_beta('c_H_in_H2O')
+        coolant.append(water)
+    if type["gdo2_wo"] != 0:
+        grey_rods.append(grey_rod)
+cr_shell1 = []
+boron_carbide1 = []
+
+cr_shell2 = []
+boron_carbide2 = []
+
+cr_shell3 = []
+boron_carbide3= []
+
+cr_shell4 = []
+boron_carbide4 = []
+
+cr_shell5 = []
+boron_carbide5 = []
+for i in range(0, len(g1)):
+    for j in range(0, h1):
+        cr_shell1.append(cr_steel(g1[i], j, 10, hc_temp[split_number - h1 + j] + 273.15))
+        boron_carbide1.append(b4c(g1[i], j, 11, hc_temp[split_number - h1 + j] + 273.15))
+for i in range(0, len(g2)):
+    for j in range(0, h2):
+        cr_shell2.append(cr_steel(g2[i], j, 10, hc_temp[split_number - h2 + j] + 273.15))
+        boron_carbide2.append(b4c(g2[i], j, 11, hc_temp[split_number - h2 + j] + 273.15))
+for i in range(0, len(g3)):
+    for j in range(0, h3):
+        cr_shell3.append(cr_steel(g3[i], j, 10, hc_temp[split_number - h3 + j] + 273.15))
+        boron_carbide3.append(b4c(g3[i], j, 11, hc_temp[split_number - h3 + j] + 273.15))
+for i in range(0, len(g4)):
+    for j in range(0, h4):
+        cr_shell4.append(cr_steel(g4[i], j, 10, hc_temp[split_number - h4 + j] + 273.15))
+        boron_carbide4.append(b4c(g4[i], j, 11, hc_temp[split_number - h4 + j] + 273.15))
+for i in range(0, len(g5)):
+    for j in range(0, h5):
+        cr_shell5.append(cr_steel(g5[i], j, 10, hc_temp[split_number - h5 + j] + 273.15))
+        boron_carbide5.append(b4c(g5[i], j, 11, hc_temp[split_number - h5 + j] + 273.15))
+
+if b_conc > eps:
+    b_ppm = 1/(1 + 61.83/18 * (1/(b_conc*1E-3)-1)) * 1E6
+    water = openmc.model.borated_water(boron_ppm = b_ppm, density=sum(density_hc)*1E-3/len(density_hc))
+    water.id = int(1E7 + 12E5 + len(dif_fu_cart)*1E2 + split_number)
+    water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
+    water.name = 'H2O'
+else:
+    water = openmc.Material(material_id = int(1E7 + 12E5 + len(dif_fu_cart)*1E2 + split_number), name="H2O")
+    water.add_element('H', 2.0)
+    water.add_element('O', 1.0)
+    water.set_density('g/cm3', sum(density_hc)*1E-3/len(density_hc))
+    water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
+    water.add_s_alpha_beta('c_H_in_H2O')
+coolant.append(water)
+
+
 
 #reactor vessel steel SA-508
 steel_all = openmc.Material(material_id = int(1E7 + 13E5 + len(dif_fu_cart)*1E2 + split_number),name="SA508")
