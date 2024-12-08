@@ -4,6 +4,8 @@ import openmc
 import sys
 from math import log
 from math import pi
+from math import sqrt
+from math import asin
 
 import openmc.model
 from fuel_assemblies import fa_types, find_name
@@ -11,7 +13,7 @@ from fuel_assemblies import fa_types, find_name
 sys.path.append('../')
 from constants import split_number, core_height, csv_path
 from constants import g1, g2, g3, g4, g5, h1, h2, h3, h4, h5, b_conc, dif_fu_cart
-from constants import treton_input_files, treton_files_path, numbers
+from constants import treton_input_files, treton_files_path, numbers, fr_number
 from constants import r_fr, delta_shell, l_shell, r_fuel, l_g, l_fuel, r_hole
 
 #materials specifications
@@ -236,6 +238,7 @@ else:
     need_lines = dif_pos(numbers)
     shell_res = (log(r_fr/(r_fr - delta_shell)))/(2*pi*l_shell)
     gaz_res = (log((r_fr - delta_shell)/r_fuel))/(2*pi*l_g)
+    delta_gap = r_fr + delta_shell - r_fuel
     print(need_lines)
     fuel_res = 1/(4*pi*l_fuel)*(1-(2*r_hole*r_hole)/(r_fuel*r_fuel - r_hole*r_hole)*log(r_fuel/r_hole))
     with open(treton_files_path + 't_r_obl_naruj.dat', 'r') as file:
@@ -244,10 +247,13 @@ else:
         ro_lines = file.readlines()
     with open(treton_files_path + 't_tepl.dat', 'r') as file:
         hc_lines = file.readlines()
+    with open(treton_files_path + 'Q6.txt', 'r') as file:
+        q_lines = file.readlines()
     for i in range(0, len(dif_fu_cart)):
         out_shell_temp = []
         density_hc = []
         hc_temp_arr = []
+        q_line = []
         out_shell_temp_ = shell_lines[need_lines[i]].strip().split()
         out_shell_temp.extend([float(temp) for temp in out_shell_temp_[2:]])
 
@@ -255,9 +261,29 @@ else:
         density_hc.extend([float(dens) for dens in density_hc_[2:]])
 
         hc_temp_arr_ = hc_lines[need_lines[i]].strip().split()
-        hc_temp_arr([float(temp) for temp in hc_temp_arr_[2:]])
+        hc_temp_arr.extend([float(temp) for temp in hc_temp_arr_[2:]])
+
+        q_line_ = q_lines[need_lines[i]].strip().split()
+        q_line.extend(float(q) for q in q_line_)
 
         type = find_name(dif_fu_cart[i], fa_types)
+
+        for j in range(0, split_number):
+            q_l = q_line[j] * split_number/(fr_number * core_height)
+            central_gaz_temp = out_shell_temp[j] + q_l * (shell_res + gaz_res + fuel_res)
+            out_fuel_temp = out_shell_temp[j] + q_l * (shell_res + gaz_res)
+            in_shell_temp = out_shell_temp[j] + q_l * shell_res
+            shell_temp_av = 1/delta_shell*(in_shell_temp - out_shell_temp[j])/log(1-delta_shell/r_fr)*(r_fr-delta_shell)*(r_fr/(r_fr-delta_shell)*log(r_fr/(r_fr-delta_shell))-r_fr/(r_fr-delta_shell)+1)+in_shell_temp
+            gaz_gap_temp_av = 1/delta_gap*(out_fuel_temp - in_shell_temp)/log(r_fuel/(r_fuel+delta_gap))*r_fuel*((r_fuel+delta_gap)/r_fuel*log((r_fuel+delta_gap)/r_fuel)-(r_fuel+delta_gap)/r_fuel+1)+out_fuel_temp
+
+            b_ = q_l/(4*pi*l_fuel*(r_fuel*r_fuel - r_hole*r_hole))
+            a_ = out_fuel_temp + b_*(r_fuel*r_fuel - 2*r_hole*r_hole*log(r_fuel/r_hole))
+            t_eff_n = 1/sqrt(b_) * (sqrt(b_)*r_fuel/2*sqrt(a_ - b_*r_fuel*r_fuel) + a_/2 * asin(sqrt(b_/a_)*r_fuel) \
+                                    - sqrt(b_)*r_hole/2*sqrt(a_ - b_*r_hole*r_hole) - a_/2 * asin(sqrt(b_/a_)*r_hole))
+            t_eff_d = 1/sqrt(b_)*(asin(sqrt(b_/a_)*r_fuel) - asin(sqrt(b_/a_)*r_hole))
+            t_eff = t_eff_n/t_eff_d
+            print(t_eff)
+        print('________')
         grey_rod = []
 
 #reactor vessel steel SA-508
