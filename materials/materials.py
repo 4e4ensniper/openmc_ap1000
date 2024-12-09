@@ -124,12 +124,6 @@ g_hole = []
 grey_rods = []
 
 if treton_input_files == 0:
-    density_hc = []
-    fuel_temp_eff = []
-    helium_temp = []
-    shell_temp = []
-    hc_temp = []
-    hole_helium_temp = []
     density_hc = average_value(split_number, csv_path + "density_hc_av(l).csv", core_height)
     #np.savetxt(f"density_av.csv", density_hc, delimiter=",", fmt='%.15f')
     fuel_temp_eff = average_value(split_number, csv_path + "fuel_temperature_eff.csv", core_height)
@@ -143,7 +137,6 @@ else:
     shell_res = (log(r_fr/(r_fr - delta_shell)))/(2*pi*l_shell)
     gaz_res = (log((r_fr - delta_shell)/r_fuel))/(2*pi*l_g)
     delta_gap = r_fr + delta_shell - r_fuel
-    print(need_lines)
     fuel_res = 1/(4*pi*l_fuel)*(1-(2*r_hole*r_hole)/(r_fuel*r_fuel - r_hole*r_hole)*log(r_fuel/r_hole))
     with open(treton_files_path + 't_r_obl_naruj.dat', 'r') as file:
         shell_lines = file.readlines()
@@ -259,38 +252,80 @@ boron_carbide4 = []
 cr_shell5 = []
 boron_carbide5 = []
 for i in range(0, len(g1)):
+    hc_temp_line_g1 = []
+    if treton_input_files == 1:
+        hc_temp_arr_ = hc_lines[need_lines[g1[i]-1]].strip().split()
+        hc_temp_line_g1.extend([float(temp) for temp in hc_temp_arr_[2:]])
+    else:
+        hc_temp_line_g1 = hc_temp_arr
     for j in range(0, h1):
-        cr_shell1.append(cr_steel(g1[i], j, 10, hc_temp[split_number - h1 + j] + 273.15))
-        boron_carbide1.append(b4c(g1[i], j, 11, hc_temp[split_number - h1 + j] + 273.15))
+        cr_shell1.append(cr_steel(g1[i], j, 10, hc_temp_line_g1[split_number - h1 + j] + 273.15))
+        boron_carbide1.append(b4c(g1[i], j, 11, hc_temp_line_g1[split_number - h1 + j] + 273.15))
 for i in range(0, len(g2)):
+    hc_temp_line_g2 = []
+    if treton_input_files == 1:
+        hc_temp_arr_ = hc_lines[need_lines[g2[i]-1]].strip().split()
+        hc_temp_line_g2.extend([float(temp) for temp in hc_temp_arr_[2:]])
+    else:
+        hc_temp_line_g2 = hc_temp_arr
     for j in range(0, h2):
-        cr_shell2.append(cr_steel(g2[i], j, 10, hc_temp[split_number - h2 + j] + 273.15))
-        boron_carbide2.append(b4c(g2[i], j, 11, hc_temp[split_number - h2 + j] + 273.15))
+        cr_shell2.append(cr_steel(g2[i], j, 10, hc_temp_line_g2[split_number - h2 + j] + 273.15))
+        boron_carbide2.append(b4c(g2[i], j, 11, hc_temp_line_g2[split_number - h2 + j] + 273.15))
 for i in range(0, len(g3)):
+    hc_temp_line_g3 = []
+    if treton_input_files == 1:
+        hc_temp_arr_ = hc_lines[need_lines[g3[i]-1]].strip().split()
+        hc_temp_line_g3.extend([float(temp) for temp in hc_temp_arr_[2:]])
+    else:
+        hc_temp_line_g3 = hc_temp_arr
     for j in range(0, h3):
-        cr_shell3.append(cr_steel(g3[i], j, 10, hc_temp[split_number - h3 + j] + 273.15))
-        boron_carbide3.append(b4c(g3[i], j, 11, hc_temp[split_number - h3 + j] + 273.15))
+        cr_shell3.append(cr_steel(g3[i], j, 10, hc_temp_line_g3[split_number - h3 + j] + 273.15))
+        boron_carbide3.append(b4c(g3[i], j, 11, hc_temp_line_g3[split_number - h3 + j] + 273.15))
 for i in range(0, len(g4)):
+    hc_temp_line_g4 = []
+    if treton_input_files == 1:
+        hc_temp_arr_ = hc_lines[need_lines[g4[i]-1]].strip().split()
+        hc_temp_line_g4.extend([float(temp) for temp in hc_temp_arr_[2:]])
+    else:
+        hc_temp_line_g4 = hc_temp_arr
     for j in range(0, h4):
-        cr_shell4.append(cr_steel(g4[i], j, 10, hc_temp[split_number - h4 + j] + 273.15))
-        boron_carbide4.append(b4c(g4[i], j, 11, hc_temp[split_number - h4 + j] + 273.15))
+        cr_shell4.append(cr_steel(g4[i], j, 10, hc_temp_line_g4[split_number - h4 + j] + 273.15))
+        boron_carbide4.append(b4c(g4[i], j, 11, hc_temp_line_g4[split_number - h4 + j] + 273.15))
 for i in range(0, len(g5)):
+    hc_temp_line_g5 = []
+    if treton_input_files == 1:
+        hc_temp_arr_ = hc_lines[need_lines[g5[i]-1]].strip().split()
+        hc_temp_line_g5.extend([float(temp) for temp in hc_temp_arr_[2:]])
+    else:
+        hc_temp_line_g5 = hc_temp_arr
     for j in range(0, h5):
-        cr_shell5.append(cr_steel(g5[i], j, 10, hc_temp[split_number - h5 + j] + 273.15))
-        boron_carbide5.append(b4c(g5[i], j, 11, hc_temp[split_number - h5 + j] + 273.15))
+        cr_shell5.append(cr_steel(g5[i], j, 10, hc_temp_line_g5[split_number - h5 + j] + 273.15))
+        boron_carbide5.append(b4c(g5[i], j, 11, hc_temp_line_g5[split_number - h5 + j] + 273.15))
+if treton_input_files == 1:
+    t_water_hc_outher = []
+    t_water_hc_outher_ = hc_lines[0].strip().split()
+    t_water_hc_outher.extend([float(temp) for temp in t_water_hc_outher_[2:]])
+    av_temp_water = sum(t_water_hc_outher)/len(t_water_hc_outher)
 
+    d_water_hc_outher = []
+    d_water_hc_outher_ = ro_lines[0].strip().split()
+    d_water_hc_outher.extend([float(temp) for temp in d_water_hc_outher_[2:]])
+    av_d_water = sum(d_water_hc_outher)/len(d_water_hc_outher)
+else:
+    av_temp_water = sum(hc_temp_arr)/len(hc_temp_arr)
+    av_d_water = sum(density_hc)/len(density_hc)
 if b_conc > eps:
     b_ppm = 1/(1 + 61.83/18 * (1/(b_conc*1E-3)-1)) * 1E6
-    water = openmc.model.borated_water(boron_ppm = b_ppm, density=sum(density_hc)*1E-3/len(density_hc))
+    water = openmc.model.borated_water(boron_ppm = b_ppm, density=av_d_water*1E-3)
     water.id = int(1E7 + 12E5 + len(dif_fu_cart)*1E2 + split_number)
-    water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
+    water.temperature = av_temp_water + 273.15
     water.name = 'H2O'
 else:
     water = openmc.Material(material_id = int(1E7 + 12E5 + len(dif_fu_cart)*1E2 + split_number), name="H2O")
     water.add_element('H', 2.0)
     water.add_element('O', 1.0)
-    water.set_density('g/cm3', sum(density_hc)*1E-3/len(density_hc))
-    water.temperature = sum(hc_temp)/len(hc_temp) + 273.15
+    water.set_density('g/cm3', av_d_water*1E-3)
+    water.temperature = av_temp_water + 273.15
     water.add_s_alpha_beta('c_H_in_H2O')
 coolant.append(water)
 
@@ -307,7 +342,7 @@ steel_all.add_element('Cr', 0.140, 'wo')
 steel_all.add_element('Ni', 0.644, 'wo')
 steel_all.add_element('Fe', 96.9, 'wo')
 steel_all.add_element('Mo', 0.493, 'wo')
-steel_all.temperature = 280.7 + 273.15
+steel_all.temperature = 285.7 + 273.15
 steel_all.set_density('g/cm3', 8.05)
 shell.append(steel_all)
 print("materials created!")
