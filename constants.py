@@ -1,8 +1,13 @@
-split_number = 4
+split_number = 30
 core_height = 3.53 #m
 n_fa = 151
 r_fuel = 7.57/20 #sm
 r_hole = 2.35/20 #sm
+r_fr = 9.1/20 #sm
+delta_shell = 0.69/10 #sm
+l_shell = 21.2 #W/m*K
+l_g  = 0.25 #W/m*K
+l_fuel = 2.9 #W/m*K
 fr_number = 312
 rod_pitch = 1.275 #sm
 turnkey_size = 23.4 #sm
@@ -13,10 +18,13 @@ b_conc = 4 #g/kg
 line = [4, 7, 10, 11, 12, 13, 12, 13, 12, 13, 12, 11, 10, 7, 4]
 #Path to the location of files with temperature distributions.
 csv_path = "/home/ubuntu24/Desktop/openmc_ap1000/materials/temperature_distributions/"
+treton_files_path = "/home/ubuntu24/Desktop/openmc_ap1000/materials/temperature_destributions_treton/"
 #Calculation parameters
 batches = 200
 inactive = 10
 particles = 100000
+treton_input_files = 0
+q_r = 3472.3869 * 1E6 #termal power, W
 #Number of different fuel assemblies defined as different universes
 dif_fu_cart = ['Z49A2', 'Z49A2',
                'Z40', 'Z24', 'Z33Z2', 'Z24',

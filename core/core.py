@@ -8,7 +8,7 @@ from collections import Counter
 sys.path.append('../')
 from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line
 from constants import batches, particles, inactive, numbers, g1, g2, g3, g4, g5, h1, h2, h3, h4, h5
-from constants import dif_fu_cart
+from constants import dif_fu_cart, q_r
 
 sys.path.append('../'+'fuel_assembly')
 from fuel_assembly import full_fa, water_full_fa
@@ -251,22 +251,27 @@ if __name__ == '__main__':
             values2[j] /= divider
 
     meanval=sum(values2)/len(values2)
-    kq_=values2/meanval
+    kv_=values2/meanval
 
-    kq = []
+    kv = []
     for i in range(0, n_fa):
         for j in range(0, split_number):
-            kq.append(kq_[(numbers[i] - 1) * split_number + j])
+            kv.append(kv_[(numbers[i] - 1) * split_number + j])
+    write_floats_to_file("kv.txt", kv, split_number)
 
-    write_floats_to_file("kv.txt", kq, split_number)
+    q_element = []
+    for i in range(0, n_fa):
+        for j in range(0, split_number):
+            q_element.append(kv_[(numbers[i] - 1) * split_number + j] * q_r)
+    write_floats_to_file("Q6.txt", q_r, split_number)
 
     #Kq calculation
-    kr = []
+    kq = []
     for i in range(0, n_fa):
         sum_ = 0
         for j in range(0, split_number):
-            sum_ += kq[j+i*split_number]
-        kr.append(sum_/split_number)
+            sum_ += kv[j+i*split_number]
+        kq.append(sum_/split_number)
     xy =[]
     turnkey_size = turnkey_size/100
     y = (-(len(line)//2)//2 - len(line)//2 + 0.5)*turnkey_size/sqrt(3)
@@ -276,7 +281,7 @@ if __name__ == '__main__':
             x += turnkey_size
             xy.append((x,y))
         y += 1.5*turnkey_size/sqrt(3)
-    combined_array = [(t[0], t[1], n) for t, n in zip(xy, kr)]
+    combined_array = [(t[0], t[1], n) for t, n in zip(xy, kq)]
     np.savetxt(f"kq.txt", combined_array, delimiter="\t", fmt = "%.6f")
 
     #Kz calculation
