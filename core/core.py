@@ -2,8 +2,12 @@ import openmc
 import openmc.deplete
 import sys
 import numpy as np
+import os
+
 from math import sqrt
 from collections import Counter
+
+#os.environ["OPENMC_CROSS_SECTIONS"] = "/home/adminsrv/projects/sections/endfb71_hdf5/cross_sections.xml"
 
 sys.path.append('../')
 from constants import n_fa, turnkey_size, core_barrel_in_r, core_barrel_out_r, core_height, split_number, line
@@ -263,7 +267,7 @@ if __name__ == '__main__':
     for i in range(0, n_fa):
         for j in range(0, split_number):
             q_element.append(kv_[(numbers[i] - 1) * split_number + j] * q_r)
-    write_floats_to_file("Q6.txt", q_r, split_number)
+    write_floats_to_file("Q6.txt", q_element, split_number)
 
     #Kq calculation
     kq = []

@@ -18,6 +18,9 @@ b_conc = 4 #g/kg
 line = [4, 7, 10, 11, 12, 13, 12, 13, 12, 13, 12, 11, 10, 7, 4]
 #Path to the location of files with temperature distributions.
 csv_path = "/home/ubuntu24/Desktop/openmc_ap1000/materials/temperature_distributions/"
+
+#csv_path = "/home/adminsrv/projects/EfanovKS/openmc_ap1000/materials/temperature_distributions/"
+
 treton_files_path = "/home/ubuntu24/Desktop/openmc_ap1000/materials/temperature_destributions_treton/"
 #Calculation parameters
 batches = 200
