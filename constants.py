@@ -1,4 +1,4 @@
-split_number = 30
+split_number = 5
 core_height = 3.53 #m
 n_fa = 151
 r_fuel = 7.57/20 #sm
@@ -31,11 +31,11 @@ q_r = 3472.3869 * 1E6 #termal power, W
 #Number of different fuel assemblies defined as different universes
 dif_fu_cart = ['Z49A2', 'Z49A2',
                'Z40', 'Z24', 'Z33Z2', 'Z24',
-               'Z24', 'Z33Z9', 'Z13',
-               'Z13', 'Z33Z9', 'Z24',
+               'Z24', 'Z33Z2', 'Z13',
+               'Z13', 'Z33Z2', 'Z24',
                'Z24', 'Z13',
                'Z33Z2', 'Z24',
-               'Z13',
+               'Z24',
                'Z33Z2']
 #An array that contains the numbers of the various universes of fuel assemblies on the cartogram.
 half_numbers = [1, 2, 2, 1,
@@ -50,13 +50,13 @@ half_numbers = [1, 2, 2, 1,
 g1 = [9]
 g2 = [5]
 g3 = [12]
-g4 = [7, 16]
+g4 = [7, 16, 11]
 g5 = [18, 13, 8]
 
 h1 = 0
 h2 = 0
 h3 = 0
-h4 = 0
+h4 = 2
 h5 = 0
 
 '''

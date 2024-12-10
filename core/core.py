@@ -258,15 +258,12 @@ if __name__ == '__main__':
     kv_=values2/meanval
 
     kv = []
-    for i in range(0, n_fa):
-        for j in range(0, split_number):
-            kv.append(kv_[(numbers[i] - 1) * split_number + j])
-    write_floats_to_file("kv.txt", kv, split_number)
-
     q_element = []
     for i in range(0, n_fa):
         for j in range(0, split_number):
-            q_element.append(kv_[(numbers[i] - 1) * split_number + j] * q_r)
+            kv.append(kv_[(numbers[i] - 1) * split_number + j])
+            q_element.append(kv_[(numbers[i] - 1) * split_number + j] * (q_r / (n_fa * split_number)))
+    write_floats_to_file("kv.txt", kv, split_number)
     write_floats_to_file("Q6.txt", q_element, split_number)
 
     #Kq calculation
@@ -295,7 +292,7 @@ if __name__ == '__main__':
     for i in range(0, split_number):
         sum_ = 0
         for j in range(0, n_fa):
-            sum_ += kq[i+j*split_number]
+            sum_ += kv[i+j*split_number]
         kz.append((z,sum_/n_fa))
         z += increment_z
     np.savetxt(f"kz.txt", kz, delimiter="\t", fmt = "%.6f")
