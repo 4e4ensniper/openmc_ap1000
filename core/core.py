@@ -295,9 +295,6 @@ if __name__ == '__main__':
     np.savetxt(f"kq.txt", combined_array, delimiter="\t", fmt = "%.6f")
 
     #Kz and Kv in central fuel assembly calculation
-    print(len(values2))
-    print(len(kv_))
-    print(len(kv__stdev))
     kz = []
     kv_central = []
     increment_z = core_height/split_number
