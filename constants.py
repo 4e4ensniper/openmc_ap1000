@@ -31,10 +31,10 @@ q_r = 3472.3869 * 1E6 #termal power, W
 #Number of different fuel assemblies defined as different universes
 dif_fu_cart = ['Z49A2', 'Z49A2',
                'Z40', 'Z24', 'Z33Z2', 'Z24',
-               'Z24', 'Z33Z2', 'Z24',
+               'Z24', 'Z33Z9', 'Z13',
                'Z13', 'Z33Z2', 'Z24',
                'Z24', 'Z13',
-               'Z33Z2', 'Z24',
+               'Z33Z9', 'Z24',
                'Z13',
                'Z33Z9']
 #An array that contains the numbers of the various universes of fuel assemblies on the cartogram.
@@ -56,7 +56,7 @@ g5 = [18, 13, 8]
 h1 = 0
 h2 = 0
 h3 = 0
-h4 = 0
+h4 = 1
 h5 = 0
 
 '''

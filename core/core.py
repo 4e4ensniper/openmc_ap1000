@@ -27,7 +27,7 @@ def write_floats_to_file(filename, float_array, elements_per_line):
     with open(filename, 'w') as file:
         for i in range(0, len(float_array), elements_per_line):
             line = float_array[i:i + elements_per_line]  # Получаем срез массива
-            file.write('\t'.join(f'{num:.7f}' for num in line) + '\n')
+            file.write('\t'.join(f'{num:.8f}' for num in line) + '\n')
 
 if __name__ == '__main__':
     grey_array = [element for sublist in grey_rods for element in sublist]
@@ -243,26 +243,35 @@ if __name__ == '__main__':
     #Get a pandas dataframe for the mesh tally data
     df = energy_rel.get_pandas_dataframe()#обработали текст
 
-    # сохраняем изначальные результаты в файл
+    # save results
     with open("results.txt", 'w') as f:
         f.write(df.to_string())
     values=energy_rel.get_values()
     values2=np.array(values.flatten())
+    values2_stdev=np.array((energy_rel.get_values(value = 'std_dev')).flatten()) #stdev
     count = Counter(numbers)
     for i in range(0, len(dif_fu_cart)):
         divider = count[i+1]
         for j in range(i * split_number, (i + 1) * split_number):
             values2[j] /= divider
+            values2_stdev[j] /= divider
 
     meanval=sum(values2)/len(values2)
+    meanval_stdev = sqrt(sum(stddev**2 for stddev in values2_stdev))/len(values2_stdev)
     kv_=values2/meanval
+    kv__stdev = []
+    for i in range(0 , len(kv_)):
+        kv__stdev.append(sqrt((values2_stdev[i]/meanval)**2 + (values2[i]/(meanval**2)*meanval_stdev)**2))
 
+    kv_stdev = []
     kv = []
     q_element = []
     for i in range(0, n_fa):
         for j in range(0, split_number):
             kv.append(kv_[(numbers[i] - 1) * split_number + j])
             q_element.append(kv_[(numbers[i] - 1) * split_number + j] * (q_r / (n_fa * split_number)))
+            kv_stdev.append(kv__stdev[(numbers[i] - 1) * split_number + j])
+    write_floats_to_file("kv_stdev.txt", kv_stdev, split_number)
     write_floats_to_file("kv.txt", kv, split_number)
     write_floats_to_file("Q6.txt", q_element, split_number)
 
@@ -285,8 +294,12 @@ if __name__ == '__main__':
     combined_array = [(t[0], t[1], n) for t, n in zip(xy, kq)]
     np.savetxt(f"kq.txt", combined_array, delimiter="\t", fmt = "%.6f")
 
-    #Kz calculation
+    #Kz and Kv in central fuel assembly calculation
+    print(len(values2))
+    print(len(kv_))
+    print(len(kv__stdev))
     kz = []
+    kv_central = []
     increment_z = core_height/split_number
     z = -core_height/2 + increment_z/2
     for i in range(0, split_number):
@@ -294,5 +307,7 @@ if __name__ == '__main__':
         for j in range(0, n_fa):
             sum_ += kv[i+j*split_number]
         kz.append((z,sum_/n_fa))
+        kv_central.append((z, kv_[(len(dif_fu_cart) - 1) * split_number + i], kv__stdev[(len(dif_fu_cart) - 1) * split_number + i]))
         z += increment_z
     np.savetxt(f"kz.txt", kz, delimiter="\t", fmt = "%.6f")
+    np.savetxt(f"kv_central.txt", kv_central, delimiter="\t", fmt = "%.8f")
