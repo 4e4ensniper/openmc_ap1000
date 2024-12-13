@@ -226,7 +226,7 @@ for i in range(0, len(dif_fu_cart)):
             water = openmc.model.borated_water(boron_ppm = b_ppm, density=hc_density*1E-3)
             water.id = int(1E7 + 8E5 + i*1E2 + j)
             water.temperature = hc_temp + 273.15
-            water.name = 'H2O'
+            water.name = 'H2O_b'
         else:
             water = openmc.Material(material_id = int(1E7 + 9E5 + i*1E2 + j), name = "H2O")
             water.add_element('H', 2.0)
