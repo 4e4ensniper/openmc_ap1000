@@ -76,11 +76,13 @@ def fa_split(fa_num, layer_num, c_gaz, fuel, gaz, shell, coolant, b4c, cr_steel,
     #create central tube
     central_tube_in_cell = openmc.Cell(cell_id = int(3E7 + 11E5 + fa_num*1E2 + layer_num), fill = coolant, region = -central_tube_in_cylinder)
     central_tube_cell = openmc.Cell(cell_id = int(3E7 + 12E5 + fa_num*1E2 + layer_num), fill = shell, region = central_tube_region)
+    central_tube_cell.temperature = coolant.temperature
     water2_cell = openmc.Cell(cell_id = int(3E7 + 13E5 + fa_num*1E2 + layer_num), fill = coolant, region = +central_tube_out_cylinder)
     ct = openmc.Universe(universe_id = int(4E7 + 3E5 + fa_num*1E2 + layer_num), cells=[central_tube_in_cell, central_tube_cell, water2_cell])
 
     #create control sistem channel
     csc_cell = openmc.Cell(cell_id = int(3E7 + 14E5 + fa_num*1E2 + layer_num),fill = shell, region = csc_region)
+    csc_cell .temperature = coolant.temperature
     water3_cell = openmc.Cell(cell_id = int(3E7 + 15E5 + fa_num*1E2 + layer_num), fill = coolant, region = +csc_out_cylinder)
     if cr_key == 0:
         csc_in_cell = openmc.Cell(cell_id = int(3E7 + 16E5 + fa_num*1E2 + layer_num), fill = coolant, region = -csc_in_cylinder)
