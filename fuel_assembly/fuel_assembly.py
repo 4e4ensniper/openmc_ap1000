@@ -39,7 +39,7 @@ def water_full_fa(coolant):
 if __name__ == '__main__':
     sys.path.append('../'+'materials')
     from fuel_assemblies import fa_types, find_name
-    fa = find_name("Z49B9", fa_types)
+    fa = find_name("Z33Z9", fa_types)
     grey_array = [element for sublist in grey_rods for element in sublist]
     mats = openmc.Materials((*g_hole, *fuel, *gaz, *shell, *coolant, *cr_shell1, *boron_carbide1, *grey_array))
     mats.export_to_xml()
@@ -62,13 +62,20 @@ if __name__ == '__main__':
     p.filename = 'fuel_assembly_xy'
     p.basis = "xy"
     p.width = (28, 28)
-    p.pixels = (1000, 1000)
+    p.pixels = (2000, 2000)
     p.color_by = 'material'
+    color = [(255, 89, 94),(255, 202, 58),(138, 201, 38),(25, 130, 196),(106, 76, 147)]
+    p.colors = {fuel[0]: color[0],
+                coolant[0]: color[3],
+                shell[0]:color[2],
+                g_hole[0]: color[1],
+                gaz[0]: color[1],
+                grey_array[0]: color[4]}
     plots = openmc.Plots([p])
     plots.export_to_xml()
     openmc.plot_geometry()
     #-----------------------
-
+#"ff595e","ffca3a","8ac926","1982c4","6a4c93"
     # longitudinal section drawing
     p.origin=(0,0,core_height/2*1E2)
     p.filename = 'fuel_assembly_yz'

@@ -5,7 +5,7 @@ import sys
 from math import log
 from math import pi
 from math import sqrt
-from math import asin
+from scipy.integrate import quad
 
 import openmc.model
 from fuel_assemblies import fa_types, find_name
@@ -114,7 +114,10 @@ def dif_pos(array):
             dif_pos.append(i)
             dict_pos[number] = i
     return dif_pos
-
+def t_n(r, a_, b_, c_):
+  return sqrt(a_ * np.log(r) + b_ * r**2 + c_)
+def t_d(r, a_, b_, c_):
+  return 1/sqrt(a_ * np.log(r) + b_ * r**2 + c_)
 
 fuel = []
 gaz = []
@@ -182,13 +185,14 @@ for i in range(0, len(dif_fu_cart)):
             shell_temp_av = 1/delta_shell*(in_shell_temp - out_shell_temp_line[j])/log(1-delta_shell/r_fr)*(r_fr-delta_shell)*(r_fr/(r_fr-delta_shell)*log(r_fr/(r_fr-delta_shell))-r_fr/(r_fr-delta_shell)+1)+in_shell_temp
             gaz_gap_temp_av = 1/delta_gap*(out_fuel_temp - in_shell_temp)/log(r_fuel/(r_fuel+delta_gap))*r_fuel*((r_fuel+delta_gap)/r_fuel*log((r_fuel+delta_gap)/r_fuel)-(r_fuel+delta_gap)/r_fuel+1)+out_fuel_temp
 
-            b_ = q_l/(4*pi*l_fuel*(r_fuel*r_fuel - r_hole*r_hole))
-            a_ = out_fuel_temp + b_*(r_fuel*r_fuel - 2*r_hole*r_hole*log(r_fuel/r_hole))
-            t_eff_n = 1/sqrt(b_) * (sqrt(b_)*r_fuel/2*sqrt(a_ - b_*r_fuel*r_fuel) + a_/2 * asin(sqrt(b_/a_)*r_fuel) \
-                                    - sqrt(b_)*r_hole/2*sqrt(a_ - b_*r_hole*r_hole) - a_/2 * asin(sqrt(b_/a_)*r_hole))
-            t_eff_d = 1/sqrt(b_)*(asin(sqrt(b_/a_)*r_fuel) - asin(sqrt(b_/a_)*r_hole))
+            b_ = -q_l/(4*pi*l_fuel*(r_fuel*r_fuel - r_hole*r_hole)*1E-4)
+            a_ = -b_*2*r_hole*r_hole*1E-4
+            c_ = out_fuel_temp - b_*(r_fuel*r_fuel*1E-4 - 2*r_hole*r_hole*1E-4*log(r_fuel*1E-2))
+            t_eff_n, error_1 = quad(lambda r: t_n(r, a_, b_, c_), r_hole*1E-2, r_fuel*1E-2)
+            t_eff_d, error_2 = quad(lambda r: t_d(r, a_, b_, c_), r_hole*1E-2, r_fuel*1E-2)
             t_eff = t_eff_n/t_eff_d
-
+            error_3 = sqrt((error_1/t_eff_d)**2 + (error_2*t_eff_n / (t_eff_d*t_eff_d))**2)
+            #print(central_gaz_temp, t_eff, out_fuel_temp, gaz_gap_temp_av, in_shell_temp, out_shell_temp_line[j], hc_temp_line[j])
             hc_density = density_hc_line[j]
             hc_temp = hc_temp_line[j]
 
